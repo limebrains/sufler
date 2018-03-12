@@ -27,12 +27,38 @@ def get_files_autocomplete(already_typed):
 
 
 def get_autocomplete_file_for_command(command):
-    """"""
+    """ Read completion for command from .yml file
+
+    :param command: The command for which read completions
+    :return: Dict of completions for command
+    """
     path_to_command = os.path.abspath(os.path.join(os.path.dirname(__file__), 'completions', '{0}.yml'.format(command)))
     return yaml.load_all(open(path_to_command, "r"))
 
 
+def replace_tree_marks(key, arguments):
+    """ Replace TREE markers from key to proper argument
+
+    :param key: The currently processed key from .yaml file
+    :param arguments: Arguments already typed for command
+    :return: Key string with replaced marks
+    """
+    replaced_list = []
+
+    for opt in key.split():
+        if opt.startswith('TREE~'):
+            opt = arguments[-int(opt.replace('TREE~', ''))]
+        replaced_list.append(opt)
+
+    return ' '.join(replaced_list)
+
 def completion(command_name, all_arguments):
+    """ Parse already typed arguments for command and return matching arguments
+
+    :param command_name: Command for which we make completion
+    :param all_arguments: Arguments already typed for command
+    :return: Dict with matching arguments
+    """
     autocomplete_dict = get_autocomplete_file_for_command(command_name)
     root = list(autocomplete_dict)[0]
 
@@ -58,6 +84,9 @@ def completion(command_name, all_arguments):
         next_argument = rest_arguments[i + 1] if i + 1 < len(rest_arguments) else None
 
         for key in current_keys:
+
+            key = replace_tree_marks(key, rest_arguments)
+
             if key.startswith('<File'):
                 recursive = False if 'rec' in key else True
 
@@ -71,7 +100,7 @@ def completion(command_name, all_arguments):
 
             if key.startswith('<Exec'):
                 autocomplete_from_command = subprocess.check_output(
-                    key.replace('<Exec>', '').replace('TREE~2', rest_arguments[i - 1]), shell=True).decode('utf-8')
+                    key.replace('<Exec>', ''), shell=True).decode('utf-8')
                 rest_of_tree = root.pop(key)
                 if not rest_of_tree:
                     return autocomplete_from_command
@@ -89,5 +118,13 @@ def completion(command_name, all_arguments):
                     root.update({
                         next_argument: rest_of_tree
                     })
+
+            if key.startswith('<Run'):
+                end_command = key.replace('<Run>', '')
+                print(rf'&>/dev/null |  sufler run \"{end_command}\"')
+                root = {}
+                # start_subshell_command = subprocess.Popen('{}'.format(
+                #     key.replace('<Subshell>', "echo -n \b\b\b")), shell=True)
+                # root = start_subshell_command.communicate()
 
     return root

@@ -21,16 +21,16 @@ class InstallScripts(install_scripts):
 setup(
     name='sufler',
     version='0.0.1',
-    description='Autocompletion Tool for Bash, Fish, Zsh',
+    description='Autocompletion Tool for Bash, Fish, Zsh, PowerShell',
     author='LimeBrains',
     author_email='mail@limebrains.com',
-    url='https://github.com/limebrains/pet',
+    url='https://github.com/limebrains/sufler',
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
     entry_points="""\
       [console_scripts]
-      sufler = sufler.cli:main
+      sufler = cli:main
     """,
     cmdclass={'install_scripts': InstallScripts},
     scripts=[],

@@ -3,15 +3,32 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to sufler's documentation!
+Sufler
 ==================================
+
+Sufler provides the ability to easily add new completions for commands.
+
+The tool use completions for commands from .yml files.
+Sufler support shells:
+
+.. hlist::
+    :columns: 1
+
+    * Bash
+    * Fisch
+    * Zsh
+    * Powershell
+
+Installation
+==================================
+
+
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-   base
-   cli
+   user/index
+   modules/index
 
 Indices and tables
 ==================

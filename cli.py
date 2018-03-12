@@ -3,6 +3,8 @@ from collections import namedtuple
 import click, pathlib, subprocess
 import os
 
+import sys
+
 from base import SUFLER_BASE_PATH
 
 cli = click.Group()
@@ -40,7 +42,7 @@ class BaseShell(object):
     def initialize(self):
         """ Rewrite completer template to install_path directory
 
-        :return:
+        :return: None
         """
         pass
 
@@ -48,7 +50,7 @@ class BaseShell(object):
         """ Add commands to completer file for shell
 
         :param commands: List of commands founded in completions directory
-        :return:
+        :return: None
         """
         pass
 
@@ -56,7 +58,7 @@ class BaseShell(object):
         """ Install completion file for shell
 
         :param commands: List of commands founded in completions directory
-        :return:
+        :return: None
         """
         pass
 
@@ -270,8 +272,14 @@ def install_completions():
         shell.install(commands)
 
 
+@cli.command('run')
+@click.argument('command')
+def run_command(command):
+    subprocess.Popen(command.split(' ')[1:])
+
+
 def main():
-    install_completions()
+    cli()
 
 
 if __name__ == '__main__':

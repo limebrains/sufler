@@ -21,7 +21,7 @@ sys.path.insert(0, project_root)
 
 # -- Project information -----------------------------------------------------
 
-project = u'sufler'
+project = u'Sufler'
 copyright = u'2018, LimeBrains'
 author = u'Radoslaw Tomaszewski'
 
@@ -44,7 +44,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -112,7 +111,6 @@ html_sidebars = {
     '**': [
         'about.html',
         'navigation.html',
-        'relations.html',  # needs 'show_related': True theme option to display
         'searchbox.html',
     ]
 }

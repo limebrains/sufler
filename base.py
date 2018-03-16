@@ -22,7 +22,7 @@ def get_files_autocomplete(already_typed):
             return [already_typed]
 
     path = pathlib.Path('/'.join(already_typed.split('/')[:-1]))
-    res = map(lambda file: str(file) + '/' if file.is_dir() else str(file), list(path.glob('*')))
+    res = list(map(lambda file: str(file) + '/' if file.is_dir() else str(file), list(path.glob('*'))))
     return res
 
 
@@ -52,6 +52,7 @@ def replace_tree_marks(key, arguments):
 
     return ' '.join(replaced_list)
 
+
 def completion(command_name, all_arguments):
     """ Parse already typed arguments for command and return matching arguments
 
@@ -78,7 +79,6 @@ def completion(command_name, all_arguments):
 
         if not isinstance(root, dict):
             break
-            # TODO : maybe support running collected command in shell
 
         current_keys = list(root.keys())
         next_argument = rest_arguments[i + 1] if i + 1 < len(rest_arguments) else None

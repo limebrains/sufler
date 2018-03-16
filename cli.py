@@ -1,9 +1,5 @@
-from collections import namedtuple
-
 import click, pathlib, subprocess
 import os
-
-import sys
 
 from base import SUFLER_BASE_PATH
 
@@ -275,7 +271,7 @@ def install_completions():
 @cli.command('run')
 @click.argument('command')
 def run_command(command):
-    """run command from <Run> tag"""
+    """run command from <Run >"""
     subprocess.Popen(command.split(' ')[1:])
 
 

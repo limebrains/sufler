@@ -88,7 +88,7 @@ def completion(command_name, all_arguments):
             key = replace_tree_marks(key, rest_arguments)
 
             if key.startswith('<File'):
-                recursive = False if 'rec' in key else True
+                recursive = True if 'rec' in key else False
 
                 already_typed = next_argument if next_argument and recursive else argument
                 files_matching = get_files_autocomplete(already_typed)

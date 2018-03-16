@@ -275,6 +275,7 @@ def install_completions():
 @cli.command('run')
 @click.argument('command')
 def run_command(command):
+    """run command from <Run> tag"""
     subprocess.Popen(command.split(' ')[1:])
 
 

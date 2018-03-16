@@ -8,6 +8,8 @@ Sufler
 
 Sufler provides the ability to easily add new completions for commands.
 
+
+
 The tool use completions for commands from .yml files.
 Sufler support shells:
 
@@ -19,9 +21,30 @@ Sufler support shells:
     * Zsh
     * Powershell
 
-Installation
-==================================
+Quickstart
+==========
 
+.. _installation-guide:
+
+Installation
+------------
+
+To install Sufler, open an interactive shell and run:
+
+.. code::
+
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
+
+Or to specify installation directory and type of shell:
+
+.. code::
+
+    bash -c "shell='bash_or_zsh';install_dir='absolute_path';$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
+
+Using Sufler
+-------------
+
+After installation just type command you like and press **Tab**.
 
 
 .. toctree::
@@ -29,10 +52,3 @@ Installation
 
    user/index
    modules/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

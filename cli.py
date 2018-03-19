@@ -93,7 +93,19 @@ class BaseShell(object):
         return bool(self.get_install_path())
 
 
-class Bash(BaseShell):
+class BashZshInstallCommandsMixin:
+    def install_commands(self, commands):
+        with open(str(self.install_file_path), 'r') as f:
+            completer_content = f.read()
+
+        for command in commands_not_installed(commands, completer_content):
+            completer_content += COMMAND_FOR_SHELL[self.shell_name].format(command)
+
+        with open(str(self.install_file_path), 'w') as f:
+            f.write(completer_content)
+
+
+class Bash(BashZshInstallCommandsMixin, BaseShell):
     shell_name = 'bash'
 
     def initialize(self):
@@ -107,16 +119,6 @@ class Bash(BaseShell):
         with open(str(self.install_file_path), 'w') as f:
             f.write(completer_content)
 
-    def install_commands(self, commands):
-        with open(str(self.install_file_path), 'r') as f:
-            completer_content = f.read()
-
-        for command in commands_not_installed(commands, completer_content):
-            completer_content += COMMAND_FOR_SHELL[self.shell_name].format(command)
-
-        with open(str(self.install_file_path), 'w') as f:
-            f.write(completer_content)
-
     def install(self, commands):
         install_file_path = pathlib.Path(self.install_path + '/completer')
         if not install_file_path.exists():
@@ -124,7 +126,7 @@ class Bash(BaseShell):
         self.install_commands(commands)
 
 
-class Zsh(BaseShell):
+class Zsh(BashZshInstallCommandsMixin, BaseShell):
     shell_name = 'zsh'
 
     def initialize(self):
@@ -148,16 +150,6 @@ class Zsh(BaseShell):
 
         command = 'echo ". {0}" >> ~/.zshrc'.format(self.install_path + '/completer')
         subprocess.check_output(command, shell=True)
-
-    def install_commands(self, commands):
-        with open(str(self.install_file_path), 'r') as f:
-            completer_content = f.read()
-
-        for command in commands_not_installed(commands, completer_content):
-            completer_content += COMMAND_FOR_SHELL[self.shell_name].format(command)
-
-        with open(str(self.install_file_path), 'w') as f:
-            f.write(completer_content)
 
     def install(self, commands):
         install_file_path = pathlib.Path(self.install_path + '/completer')

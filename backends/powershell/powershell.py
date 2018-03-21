@@ -5,7 +5,7 @@ import sys
 from base import completion
 
 
-if __name__ == "__main__":
+def powershell_parse():
     list_of_arguments = [sys.argv[0]]
     arguments = list(
                     item
@@ -24,3 +24,7 @@ if __name__ == "__main__":
             print(item)
     if isinstance(options, str):
         print(options)
+
+
+if __name__ == "__main__":
+    powershell_parse()

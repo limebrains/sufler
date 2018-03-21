@@ -40,7 +40,8 @@ printf "\n\e[1;33mAuto-completion requires sudo\e[0m\n"
 if [ "$USER" == 'root' ]; then
     if [ -z "$shell" ]; then
         sudo python 'sufler-master/sufler/cli.py' 'install'
+    fi
 else
-    printf "\n\e[1;33mNeeds sudo - use 'sudo pet deploy'\e[0m\n"
+    printf "\n\e[1;33mNeeds sudo - use 'sudo sufler install'\e[0m\n"
 fi
 printf "\n\e[1;32mInstallation completed\e[0m\n"

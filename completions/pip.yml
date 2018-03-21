@@ -1,0 +1,70 @@
+'pip': &pip
+    'install': &install
+        '--constrain': &constraint
+            '<File>': *install
+        '-c': *constraint
+        '--editable': &editable
+            '<File>': *install
+        '-e': *editable
+        '--requirement': &requirement
+            '<File>': *install
+        '-r': *requirement
+        '--build': &build
+            '<File>': *install
+        '-b': *build
+        '--target': &target
+            '<File>': *install
+        '-t': *target
+        '--download': &download
+            '<File>': *install
+        '-d': *download
+        '--src':
+            '<File>': *install
+        '-U': *install
+        '--upgrade': *install
+        '--upgrade-strategy':
+            'eager': *install
+            'only-if-needed': *install
+        '--force-reinstall': *install
+        '-I': *install
+        '--ignore-installed': *install
+        '--ignore-requires-python': *install
+        '--no-deps': *install
+        '--install-option':
+
+
+        "<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d '>' -f 2 | cut -d '<' -f 1 | grep '^TREE~1.*'":
+
+    '-h': *pip
+    '--help': *pip
+    '--isolated': *pip
+    '-v': *pip
+    '--verbose': *pip
+    '-V':
+    '--version':
+    '-q': *pip
+    '--quite': *pip
+    '--log':
+        '<File>': *pip
+    '--proxy':
+        '<Regex>': *pip
+    '--retries':
+        '<Regex>^\d+': *pip
+    '--timeout':
+        '<Regex>^\d+': *pip
+    '--exists-action':
+        's': *pip
+        'i': *pip
+        'w': *pip
+        'b': *pip
+        'a': *pip
+    '--trusted-host': *pip
+    '--cert':
+        '<File>': *pip
+    '--client-cert':
+        '<File>': *pip
+    '--cache-dir':
+        '<File>': *pip
+    '--no-cache-dir': *pip
+    '--disable-pip-version-check': *pip
+

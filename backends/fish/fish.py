@@ -4,8 +4,7 @@ from base import completion
 import sys
 
 
-if __name__ == "__main__":
-
+def fish_parse():
     list_of_arguments = [sys.argv[0]]
     arguments = list(
                     item
@@ -27,3 +26,7 @@ if __name__ == "__main__":
             print(item.replace('"', r'"'))
     if isinstance(options, str):
         print(options)
+
+
+if __name__ == "__main__":
+    fish_parse()

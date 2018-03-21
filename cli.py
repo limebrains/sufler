@@ -1,5 +1,11 @@
-import click, pathlib, subprocess
 import os
+
+import yaml
+import click
+import pathlib
+import filecmp
+import requests
+import subprocess
 
 from base import SUFLER_BASE_PATH
 
@@ -251,13 +257,62 @@ def get_commands():
     ]
 
 
+# def get_completions_directory_from_git(repos):
+#
+
+
 @cli.command('install')
-def install_completions():
+@click.option('--name', '-n', default=None, help='install specified completion')
+@click.pass_context
+def install_completions(ctx, name):
     """install completions"""
+    #
+    # if not pathlib.Path(pathlib.Path().home()/'.sufler').exists():
+    #     result = ctx.invoke(init_command, content=ctx.forward(add_name))
+    #     init_command()
+
+    if name:
+        pass
+
     shells = detect_shells()
     commands = get_commands()
     for shell in shells:
         shell.install(commands)
+
+
+@cli.command('init')
+def init_command():
+    """initialize Sufler directory and config file"""
+
+    sufler_dir = pathlib.Path().home()/'.sufler'
+    if not sufler_dir.exists():
+        os.mkdir(sufler_dir, 775)
+        print('Sufler config directory created')
+
+    config_file_path = sufler_dir/'.config'
+    if not config_file_path.exists():
+        config_data = {
+            'repos': [
+                {
+                    'url': 'https://github.com/limebrains/sufler-completions.git',
+                },
+                {
+                    'url': 'git@github.com:limebrains/sufler-completions.git',
+                },
+                {
+                    'https://github.com/limebrains/sufler-completions/archive/master.zip'
+                }
+            ]
+        }
+
+        with open(config_file_path, 'w') as outfile:
+            yaml.dump(config_data, outfile, default_flow_style=False)
+
+        print('Created Sufler config file')
+
+    if not pathlib.Path(sufler_dir/'completions').exists():
+        os.mkdir(sufler_dir/'completions')
+        print('Create completions dictionary')
 
 
 @cli.command('run')

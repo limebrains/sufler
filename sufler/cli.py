@@ -3,11 +3,9 @@ import os
 import yaml
 import click
 import pathlib
-import filecmp
-import requests
 import subprocess
 
-from base import SUFLER_BASE_PATH
+from sufler.base import SUFLER_BASE_PATH
 
 cli = click.Group()
 

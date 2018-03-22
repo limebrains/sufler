@@ -1,6 +1,6 @@
-from backends.bash import bash
-from backends.fish import fish
-from backends.powershell import powershell
+from sufler.backends.bash import bash
+from sufler.backends.fish import fish
+from sufler.backends.powershell import powershell
 
 import pytest
 from mock import patch, call

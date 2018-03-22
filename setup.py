@@ -30,7 +30,7 @@ setup(
     install_requires=requirements,
     entry_points="""\
       [console_scripts]
-      sufler = cli:main
+      sufler = sufler.cli:main
     """,
     cmdclass={'install_scripts': InstallScripts},
     scripts=[],

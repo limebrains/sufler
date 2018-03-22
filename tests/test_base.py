@@ -1,4 +1,4 @@
-import base
+from sufler import base
 
 import pytest
 

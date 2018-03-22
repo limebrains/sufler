@@ -1,6 +1,6 @@
 import sys
 
-from base import completion
+from sufler.base import completion
 
 
 def bash_parse():

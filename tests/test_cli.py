@@ -1,4 +1,4 @@
-import cli
+from sufler import cli
 
 import pytest
 from mock import patch, mock_open

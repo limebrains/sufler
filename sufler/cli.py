@@ -264,7 +264,7 @@ def get_commands():
     completions_path_files = [
         file
         for file in os.listdir(completions_path)
-        if file.endswith('.txt')
+        if file.endswith('.yml')
     ]
 
     return [
@@ -311,9 +311,7 @@ def install_completion_files():
 def install_command(ctx, name):
     """install completions"""
 
-    if not os.path.exists(os.path.expanduser('~/.sufler')):
-        ctx.invoke(init_command)
-
+    ctx.invoke(init_command)
 
     install_completion_files()
 

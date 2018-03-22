@@ -39,7 +39,7 @@ def get_autocomplete_file_for_command(command):
     :param command: The command for which read completions
     :return: Dict of completions for command
     """
-    path_to_command = os.path.abspath(os.path.join(os.path.dirname(__file__), 'completions', '{0}.yml'.format(command)))
+    path_to_command = os.path.expanduser('~/.sufler/completions/{0}.yml'.format(command))
     return yaml.load_all(open(path_to_command, "r"))
 
 
@@ -134,7 +134,7 @@ def completion(command_name, all_arguments):
 
             if key.startswith('<Run'):
                 end_command = key.replace('<Run>', '')
-                print(rf'&>/dev/null |  sufler run \"{end_command}\"')
+                print(r'&>/dev/null |  sufler run \"{end_command}\"'.format(end_command=end_command))
                 root = {}
 
     return root

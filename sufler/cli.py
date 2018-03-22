@@ -2,7 +2,10 @@ import os
 
 import yaml
 import click
-import pathlib
+
+import shutil
+import zipfile
+import requests
 import subprocess
 
 from sufler.base import SUFLER_BASE_PATH
@@ -31,6 +34,19 @@ COMMAND_FOR_SHELL = {
     'fish': '\ncomplete --command {0} --arguments \'(python \"{1}/backends/fish/fish.py\" (commandline -cp))\' -f',
 }
 
+CONFIG_DATA = {
+    'repos': [
+        {
+            'url': 'https://github.com/limebrains/sufler-completions.git',
+        },
+        {
+            'url': 'git@github.com:limebrains/sufler-completions.git',
+        },
+        {
+            'url': 'https://github.com/limebrains/sufler-completions/archive/master.zip'
+        },
+    ]
+}
 
 class BaseShell(object):
     """ Template class of shells for install
@@ -47,7 +63,7 @@ class BaseShell(object):
     def install_commands(self, commands):
         """ Add commands to completer file for shell
 
-        :param commands: List of commands founded in completions directory
+        :param commands: List of commands found in completions directory
         :return: None
         """
         pass
@@ -55,7 +71,7 @@ class BaseShell(object):
     def install(self, commands):
         """ Install completion file for shell
 
-        :param commands: List of commands founded in completions directory
+        :param commands: List of commands found in completions directory
         :return: None
         """
         pass
@@ -67,8 +83,7 @@ class BaseShell(object):
         """
         possible_locations = PATH_FOR_SHELL[self.shell_name]
         for location in possible_locations:
-            install_path = pathlib.Path(location)
-            if install_path.exists():
+            if os.path.exists(location):
                 return location
 
     @property
@@ -85,7 +100,7 @@ class BaseShell(object):
 
         :return: Install file path
         """
-        return pathlib.Path(self.install_path + '/completer')
+        return '{0}/completer'.format(self.install_path)
 
     def exists(self):
         """ Check shell path exists
@@ -122,8 +137,7 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
             f.write(completer_content)
 
     def install(self, commands):
-        install_file_path = pathlib.Path(self.install_path + '/completer')
-        if not install_file_path.exists():
+        if not os.path.exists(self.install_file_path):
             self.initialize()
         self.install_commands(commands)
 
@@ -154,8 +168,7 @@ class Zsh(BashZshInstallCommandsMixin, BaseShell):
         subprocess.check_output(command, shell=True)
 
     def install(self, commands):
-        install_file_path = pathlib.Path(self.install_path + '/completer')
-        if not install_file_path.exists():
+        if not os.path.exists(self.install_file_path):
             self.initialize()
         self.install_commands(commands)
 
@@ -164,10 +177,11 @@ class Fish(BaseShell):
     shell_name = 'fish'
 
     def install(self, commands):
-        current_installed_commands = ' '.join(
-            str(file)
-            for file in pathlib.Path(self.install_path).glob('*.fish')
-        )
+        current_installed_commands = [
+            file
+            for file in os.listdir(self.install_path)
+            if file.endswith('.fish')
+        ]
 
         for command in commands_not_installed(commands, current_installed_commands):
             with open('{0}/{1}.fish'.format(self.install_path, command), 'w') as f:
@@ -179,10 +193,10 @@ class PowerShell(BaseShell):
 
     @property
     def install_file_path(self):
-        return pathlib.Path(self.install_path + '/Microsoft.PowerShell_profile.ps1')
+        return '{0}/Microsoft.PowerShell_profile.ps1'.format(self.install_path)
 
     def install(self, commands):
-        if not self.install_file_path.exists():
+        if not os.path.exists(self.install_file_path):
             with open('{0}/backends/powershell/completer'.format(SUFLER_BASE_PATH), 'r') as f:
                 completer_content = f.read()
 
@@ -194,8 +208,8 @@ class PowerShell(BaseShell):
             with open(str(completer_script_path), 'w') as f:
                 f.write(completer_content)
 
-            autoloader_path = pathlib.Path('{0}/.config/powershell'.format(os.path.expanduser('~')))
-            if not autoloader_path.exists():
+            autoloader_path = '{0}/.config/powershell'.format(os.path.expanduser('~'))
+            if not os.path.exists(autoloader_path):
                 command = 'mkdir {0}'.format(autoloader_path)
                 subprocess.check_output(command, shell=True)
 
@@ -230,7 +244,7 @@ def detect_shells():
 def commands_not_installed(commands, completer_content):
     """ Checking for installed commands in exists completer file
 
-    :param commands: List of commands founded in completions directory
+    :param commands: List of commands found in completions directory
     :param completer_content: Content of current installed complete file
     :return: List of not installed commands
     """
@@ -244,31 +258,62 @@ def commands_not_installed(commands, completer_content):
 def get_commands():
     """ Looking for commands .yml file in completions directory
 
-    :return: List of commands founded in completions directory
+    :return: List of commands found in completions directory
     """
-    completions_path = pathlib.Path(str(pathlib.Path.cwd()))
+    completions_path = os.getcwd() + '/completions'
+    completions_path_files = [
+        file
+        for file in os.listdir(completions_path)
+        if file.endswith('.yml')
+    ]
+
     return [
         str(command).split('/')[-1][:-4]
-        for command in completions_path.glob('completions/*.yml')
+        for command in completions_path_files
     ]
 
 
-# def get_completions_directory_from_git(repos):
-#
+def get_completions_directory_from_git():
+    for urls in CONFIG_DATA['repos']:
+        zip_file_path = '{0}/.sufler/zip_completions.zip'.format(os.path.expanduser('~'))
+        zip_dir_path = '{0}/.sufler/zip_completions/'.format(os.path.expanduser('~'))
+
+        if urls['url'].endswith('.zip'):
+            result = requests.get(urls['url'])
+
+            with open(zip_file_path, 'wb') as out_zip_file:
+                out_zip_file.write(result.content)
+
+            with zipfile.ZipFile(zip_file_path) as zip_file:
+                zip_file.extractall(path=zip_dir_path)
+
+            os.remove(zip_file_path)
+
+
+def install_completion_files():
+    get_completions_directory_from_git()
+
+    sufler_completions_files = os.listdir(os.path.expanduser('~/.sufler/completions'))
+    zip_completions_path = os.path.expanduser('~/.sufler/zip_completions/sufler-completions-master/completions')
+    zip_completions_files = os.listdir(zip_completions_path)
+
+    for file in set(zip_completions_files).difference(sufler_completions_files):
+        shutil.copyfile(
+            '{0}/{1}'.format(zip_completions_path, file),
+            os.path.expanduser('~/.sufler/completions/' + file)
+        )
+
 
 
 @cli.command('install')
 @click.option('--name', '-n', default=None, help='install specified completion')
 @click.pass_context
-def install_completions(ctx, name):
+def install_command(ctx, name):
     """install completions"""
-    #
-    # if not pathlib.Path(pathlib.Path().home()/'.sufler').exists():
-    #     result = ctx.invoke(init_command, content=ctx.forward(add_name))
-    #     init_command()
 
-    if name:
-        pass
+    ctx.invoke(init_command)
+
+    install_completion_files()
 
     shells = detect_shells()
     commands = get_commands()
@@ -280,35 +325,17 @@ def install_completions(ctx, name):
 def init_command():
     """initialize Sufler directory and config file"""
 
-    sufler_dir = pathlib.Path().home()/'.sufler'
-    if not sufler_dir.exists():
-        os.mkdir(sufler_dir, 775)
-        print('Sufler config directory created')
+    sufler_dir = os.path.expanduser('~') + '/.sufler'
+    if not os.path.exists(sufler_dir):
+        os.mkdir(sufler_dir)
 
-    config_file_path = sufler_dir/'.config'
-    if not config_file_path.exists():
-        config_data = {
-            'repos': [
-                {
-                    'url': 'https://github.com/limebrains/sufler-completions.git',
-                },
-                {
-                    'url': 'git@github.com:limebrains/sufler-completions.git',
-                },
-                {
-                    'https://github.com/limebrains/sufler-completions/archive/master.zip'
-                }
-            ]
-        }
-
+    config_file_path = sufler_dir + '/.config'
+    if not os.path.exists(config_file_path):
         with open(config_file_path, 'w') as outfile:
-            yaml.dump(config_data, outfile, default_flow_style=False)
+            yaml.dump(CONFIG_DATA, outfile, default_flow_style=False)
 
-        print('Created Sufler config file')
-
-    if not pathlib.Path(sufler_dir/'completions').exists():
-        os.mkdir(sufler_dir/'completions')
-        print('Create completions dictionary')
+    if not os.path.exists(sufler_dir + '/completions'):
+        os.mkdir(sufler_dir + '/completions')
 
 
 @cli.command('run')

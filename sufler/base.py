@@ -3,7 +3,9 @@
 import logging
 import os
 
-import yaml, subprocess, re, pathlib
+import re
+import subprocess
+import yaml
 
 logger = logging.getLogger(__file__)
 
@@ -17,12 +19,17 @@ def get_files_autocomplete(already_typed):
     :param already_typed: Already typed string
     :return: List of files in directory or already typed path to file
     """
-    path = pathlib.Path(already_typed)
-    if path.exists() and path.is_file():
+    if os.path.exists(already_typed) and os.path.isfile(already_typed):
             return [already_typed]
 
-    path = pathlib.Path('/'.join(already_typed.split('/')[:-1]))
-    res = list(map(lambda file: str(file) + '/' if file.is_dir() else str(file), list(path.glob('*'))))
+    path = '/'.join(already_typed.split('/')[:-1])
+    res = list(map(
+        lambda file:
+        file + '/'
+        if os.path.isdir(file)
+        else
+        file, os.listdir('{0}/{1}'.format(os.path.dirname(__file__), path))
+    ))
     return res
 
 
@@ -32,7 +39,7 @@ def get_autocomplete_file_for_command(command):
     :param command: The command for which read completions
     :return: Dict of completions for command
     """
-    path_to_command = os.path.abspath(os.path.join(os.path.dirname(__file__), 'completions', '{0}.yml'.format(command)))
+    path_to_command = os.path.expanduser('~/.sufler/completions/{0}.yml'.format(command))
     return yaml.load_all(open(path_to_command, "r"))
 
 
@@ -127,7 +134,7 @@ def completion(command_name, all_arguments):
 
             if key.startswith('<Run'):
                 end_command = key.replace('<Run>', '')
-                print(rf'&>/dev/null |  sufler run \"{end_command}\"')
+                print(r'&>/dev/null |  sufler run \"{end_command}\"'.format(end_command=end_command))
                 root = {}
 
     return root

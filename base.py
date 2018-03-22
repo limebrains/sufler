@@ -43,14 +43,16 @@ def replace_tree_marks(key, arguments):
     :param arguments: Arguments already typed for command
     :return: Key string with replaced marks
     """
-    replaced_list = []
+    tree_mark_index = key.find('TREE~')
+    while tree_mark_index >= 0:
 
-    for opt in key.split():
-        if opt.startswith('TREE~'):
-            opt = arguments[-int(opt.replace('TREE~', ''))]
-        replaced_list.append(opt)
+        tree_index = -int(key[tree_mark_index+5])
 
-    return ' '.join(replaced_list)
+        key = key[:tree_mark_index] + arguments[tree_index] + key[tree_mark_index+6:]
+
+        tree_mark_index = key.find('TREE~')
+
+    return key
 
 
 def completion(command_name, all_arguments):
@@ -75,7 +77,7 @@ def completion(command_name, all_arguments):
             try:
                 root = root[argument + ' ']
             except KeyError:
-                continue
+                return root
 
         if not isinstance(root, dict):
             break
@@ -85,6 +87,7 @@ def completion(command_name, all_arguments):
 
         for key in current_keys:
 
+            old_key = key
             key = replace_tree_marks(key, rest_arguments)
 
             if key.startswith('<File'):
@@ -99,9 +102,12 @@ def completion(command_name, all_arguments):
                 })
 
             if key.startswith('<Exec'):
-                autocomplete_from_command = subprocess.check_output(
-                    key.replace('<Exec>', ''), shell=True).decode('utf-8')
-                rest_of_tree = root.pop(key)
+                try:
+                    autocomplete_from_command = subprocess.check_output(
+                        key.replace('<Exec>', ''), shell=True).decode('utf-8')
+                except subprocess.CalledProcessError:
+                    autocomplete_from_command = ''
+                rest_of_tree = root.pop(old_key)
                 if not rest_of_tree:
                     return autocomplete_from_command
 
@@ -123,8 +129,5 @@ def completion(command_name, all_arguments):
                 end_command = key.replace('<Run>', '')
                 print(rf'&>/dev/null |  sufler run \"{end_command}\"')
                 root = {}
-                # start_subshell_command = subprocess.Popen('{}'.format(
-                #     key.replace('<Subshell>', "echo -n \b\b\b")), shell=True)
-                # root = start_subshell_command.communicate()
 
     return root

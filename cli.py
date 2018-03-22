@@ -11,8 +11,6 @@ from base import SUFLER_BASE_PATH
 
 cli = click.Group()
 
-# shell = namedtuple("shell", 'name,install_path')
-
 PATH_FOR_SHELL = {
     'bash': [
         '/usr/local/etc/bash_completion.d/',

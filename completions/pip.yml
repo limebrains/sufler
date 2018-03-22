@@ -33,7 +33,7 @@
         '--install-option':
 
 
-        "<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d '>' -f 2 | cut -d '<' -f 1 | grep '^TREE~1.*'":
+        '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *install
 
     '-h': *pip
     '--help': *pip

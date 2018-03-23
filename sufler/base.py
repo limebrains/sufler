@@ -2,9 +2,9 @@
 
 import logging
 import os
-
 import re
 import subprocess
+
 import yaml
 
 logger = logging.getLogger(__file__)

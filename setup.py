@@ -24,7 +24,7 @@ class InstallScripts(install_scripts):
 
 setup(
     name='sufler',
-    version='0.0.1',
+    version='0.0.2',
     description='Autocompletion Tool for Bash, Fish, Zsh, PowerShell',
     author='LimeBrains',
     author_email='mail@limebrains.com',

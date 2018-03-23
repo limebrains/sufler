@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from sufler.base import completion
 import sys
+
+from sufler.base import completion
 
 
 def fish_parse():

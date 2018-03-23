@@ -1,12 +1,11 @@
 import os
-
-import yaml
-import click
-
 import shutil
-import zipfile
-import requests
 import subprocess
+import zipfile
+
+import click
+import requests
+import yaml
 
 from sufler.base import SUFLER_BASE_PATH
 

@@ -24,7 +24,7 @@ if [ ! -d "$install_dir/.sufler" ]; then
     printf "\n\e[1;31mSufler installation unsuccessful due to failed unzip\e[0m\n"
     exit
 fi
-pip install -e "$install_dir/.sufler/sufler-master/"
+sudo pip install -e "$install_dir/.sufler/sufler-master/"
 sufler install
 
 printf "\n\e[1;32mInstallation completed\e[0m\n"

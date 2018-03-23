@@ -31,7 +31,8 @@ PATH_FOR_SHELL = {
 COMMAND_FOR_SHELL = {
     'bash': '\ncomplete -F _completer -o default {0}',
     'zsh': '\ncomplete -F _completer -o default {0}',
-    'fish': '\ncomplete --command {0} --arguments \'(python \"{1}/backends/fish/fish.py\" (commandline -cp))\' -f',
+    'fish': '\ncomplete --command {0} --arguments \''
+            '(python \"{1}/backends/fish/fish.py\" (commandline -cp))\' -f',
 }
 
 CONFIG_DATA = {
@@ -43,10 +44,12 @@ CONFIG_DATA = {
             'url': 'git@github.com:limebrains/sufler-completions.git',
         },
         {
-            'url': 'https://github.com/limebrains/sufler-completions/archive/master.zip'
+            'url': 'https://github.com/limebrains/sufler-completions'
+                   '/archive/master.zip'
         },
     ]
 }
+
 
 class BaseShell(object):
     """ Template class of shells for install
@@ -100,7 +103,7 @@ class BaseShell(object):
 
         :return: Install file path
         """
-        return '{0}/completer'.format(self.install_path)
+        return '{0}completer'.format(self.install_path)
 
     def exists(self):
         """ Check shell path exists
@@ -116,7 +119,9 @@ class BashZshInstallCommandsMixin:
             completer_content = f.read()
 
         for command in commands_not_installed(commands, completer_content):
-            completer_content += COMMAND_FOR_SHELL[self.shell_name].format(command)
+            completer_content += COMMAND_FOR_SHELL[
+                self.shell_name
+            ].format(command)
 
         with open(str(self.install_file_path), 'w') as f:
             f.write(completer_content)
@@ -130,7 +135,8 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
             completer_content = f.read()
 
         completer_content = completer_content.format(
-            python_script_path='{0}/backends/bash/bash.py'.format(SUFLER_BASE_PATH)
+            python_script_path='{0}/backends/'
+                               'bash/bash.py'.format(SUFLER_BASE_PATH)
         )
 
         with open(str(self.install_file_path), 'w') as f:
@@ -141,12 +147,20 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
             self.initialize()
         self.install_commands(commands)
 
+        try:
+            subprocess.check_output('. {0}/completer'.format(self.install_path))
+        except OSError:
+            pass
+
 
 class Zsh(BashZshInstallCommandsMixin, BaseShell):
     shell_name = 'zsh'
 
     def initialize(self):
-        command = 'cp {0}/backends/zsh/completer {1}'.format(SUFLER_BASE_PATH, self.install_path)
+        command = 'cp {0}/backends/zsh/completer {1}'.format(
+            SUFLER_BASE_PATH,
+            self.install_path
+        )
         subprocess.check_output(command, shell=True)
 
         with open(str(self.install_file_path), 'r') as f:
@@ -158,13 +172,17 @@ class Zsh(BashZshInstallCommandsMixin, BaseShell):
             bash_completer_content = f.read()
 
         completer_content = completer_content.format(
-            bash_content=bash_completer_content.format(python_script_path=bash_backend_path + '/bash.py')
+            bash_content=bash_completer_content.format(
+                python_script_path=bash_backend_path + '/bash.py'
+            )
         )
 
         with open(str(self.install_file_path), 'w') as f:
             f.write(completer_content)
 
-        command = 'echo ". {0}" >> ~/.zshrc'.format(self.install_path + '/completer')
+        command = 'echo ". {0}" >> ~/.zshrc'.format(
+            self.install_path + '/completer'
+        )
         subprocess.check_output(command, shell=True)
 
     def install(self, commands):
@@ -183,9 +201,22 @@ class Fish(BaseShell):
             if file.endswith('.fish')
         ]
 
-        for command in commands_not_installed(commands, current_installed_commands):
-            with open('{0}/{1}.fish'.format(self.install_path, command), 'w') as f:
-                f.write(COMMAND_FOR_SHELL[self.shell_name].format(command, SUFLER_BASE_PATH))
+        not_installed_commands = commands_not_installed(
+                commands,
+                current_installed_commands
+        )
+
+        for command in not_installed_commands:
+            command_completer_file = '{0}/{1}.fish'.format(
+                self.install_path,
+                command
+            )
+
+            with open(command_completer_file, 'w') as f:
+                f.write(COMMAND_FOR_SHELL[self.shell_name].format(
+                    command,
+                    SUFLER_BASE_PATH
+                ))
 
 
 class PowerShell(BaseShell):
@@ -193,22 +224,33 @@ class PowerShell(BaseShell):
 
     @property
     def install_file_path(self):
-        return '{0}/Microsoft.PowerShell_profile.ps1'.format(self.install_path)
+        return '{0}Microsoft.PowerShell_profile.ps1'.format(
+            self.install_path
+        )
 
     def install(self, commands):
         if not os.path.exists(self.install_file_path):
-            with open('{0}/backends/powershell/completer'.format(SUFLER_BASE_PATH), 'r') as f:
+
+            completer_file = '{0}/backends/powershell/completer'.format(
+                SUFLER_BASE_PATH
+            )
+
+            with open(completer_file, 'r') as f:
                 completer_content = f.read()
 
             completer_content = completer_content.format(
-                python_script_path="{0}/backends/powershell/powershell.py".format(SUFLER_BASE_PATH))
+                python_script_path="{0}/backends/powershell/"
+                                   "powershell.py".format(SUFLER_BASE_PATH))
 
-            completer_script_path = '{0}/backends/powershell/completer.ps1'.format(SUFLER_BASE_PATH)
+            completer_script_path = "{0}/backends/powershell/" \
+                                    "completer.ps1".format(SUFLER_BASE_PATH)
 
             with open(str(completer_script_path), 'w') as f:
                 f.write(completer_content)
 
-            autoloader_path = '{0}/.config/powershell'.format(os.path.expanduser('~'))
+            autoloader_path = '{0}/.config/powershell'.format(
+                os.path.expanduser('~')
+            )
             if not os.path.exists(autoloader_path):
                 command = 'mkdir {0}'.format(autoloader_path)
                 subprocess.check_output(command, shell=True)
@@ -260,7 +302,7 @@ def get_commands():
 
     :return: List of commands found in completions directory
     """
-    completions_path = os.getcwd() + '/completions'
+    completions_path = os.path.expanduser('~/.sufler/completions/')
     completions_path_files = [
         file
         for file in os.listdir(completions_path)
@@ -274,9 +316,14 @@ def get_commands():
 
 
 def get_completions_directory_from_git():
+    """Download zip file from git and extrack to dir"""
     for urls in CONFIG_DATA['repos']:
-        zip_file_path = '{0}/.sufler/zip_completions.zip'.format(os.path.expanduser('~'))
-        zip_dir_path = '{0}/.sufler/zip_completions/'.format(os.path.expanduser('~'))
+        zip_file_path = '{0}/.sufler/zip_completions.zip'.format(
+            os.path.expanduser('~')
+        )
+        zip_dir_path = '{0}/.sufler/zip_completions/'.format(
+            os.path.expanduser('~')
+        )
 
         if urls['url'].endswith('.zip'):
             result = requests.get(urls['url'])
@@ -291,22 +338,38 @@ def get_completions_directory_from_git():
 
 
 def install_completion_files():
+    """
+    Check difference between sufler completions folder
+    and git completions folder.
+    After check copy only files not in sufler completions folder.
+    """
     get_completions_directory_from_git()
 
-    sufler_completions_files = os.listdir(os.path.expanduser('~/.sufler/completions'))
-    zip_completions_path = os.path.expanduser('~/.sufler/zip_completions/sufler-completions-master/completions')
+    sufler_completions_files = os.listdir(
+        os.path.expanduser('~/.sufler/completions')
+    )
+    zip_completions_path = os.path.expanduser(
+        '~/.sufler/zip_completions/sufler-completions-master/completions'
+    )
     zip_completions_files = os.listdir(zip_completions_path)
 
-    for file in set(zip_completions_files).difference(sufler_completions_files):
+    completions_not_installed = set(zip_completions_files).difference(
+        sufler_completions_files
+    )
+
+    for file in completions_not_installed:
         shutil.copyfile(
             '{0}/{1}'.format(zip_completions_path, file),
             os.path.expanduser('~/.sufler/completions/' + file)
         )
 
 
-
 @cli.command('install')
-@click.option('--name', '-n', default=None, help='install specified completion')
+@click.option(
+    '--name',
+    '-n',
+    default=None,
+    help='install specified completion')
 @click.pass_context
 def install_command(ctx, name):
     """install completions"""

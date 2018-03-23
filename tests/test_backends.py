@@ -6,8 +6,8 @@ import pytest
 from mock import patch, call
 
 #bash.py
-@patch('backends.bash.bash.completion')
-@patch('backends.bash.bash.print')
+@patch('sufler.backends.bash.bash.completion')
+@patch('sufler.backends.bash.bash.print')
 @pytest.mark.parametrize('test_data, expected_value', [
     ('options', 'options'),
     ({'test': 'some', 'data': 'thing'}, 'test\ndata'),
@@ -22,8 +22,8 @@ def test_backends_bash(mock_print, mock_completion, test_data, expected_value):
 
 
 #fish.py
-@patch('backends.fish.fish.completion')
-@patch('backends.fish.fish.print')
+@patch('sufler.backends.fish.fish.completion')
+@patch('sufler.backends.fish.fish.print')
 @pytest.mark.parametrize('test_data, expected_value', [
     ('options', 'options'),
     ({'test': 'some', 'data': 'thing'}, ['test', 'data']),
@@ -44,8 +44,8 @@ def test_backends_fish(mock_print, mock_completion, test_data, expected_value):
 
 
 #powershell.py
-@patch('backends.powershell.powershell.completion')
-@patch('backends.powershell.powershell.print')
+@patch('sufler.backends.powershell.powershell.completion')
+@patch('sufler.backends.powershell.powershell.print')
 @pytest.mark.parametrize('test_data, expected_value', [
     ('options', 'options'),
     ({'test': 'some', 'data': 'thing'}, ['test', 'data']),

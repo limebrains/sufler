@@ -1,32 +1,33 @@
 from sufler import base
 
 import pytest
+import mock
 
 @pytest.mark.parametrize('file, expected_value', [
-    ('base.py', ['base.py']),
-    ('docs/', ['docs/index.rst',
-               'docs/.DS_Store',
-               'docs/_templates/',
-               'docs/Makefile',
-               'docs/conf.py',
-               'docs/_static/',
-               'docs/user/',
-               'docs/make.bat',
-               'docs/_build/',
-               'docs/modules/'
+    ('sufler/base.py', ['sufler/base.py']),
+    ('docs/', ['index.rst',
+               '.DS_Store',
+               '_templates',
+               'Makefile',
+               'conf.py',
+               '_static',
+               'user',
+               'make.bat',
+               '_build',
+               'modules'
                ]),
 ])
 def test_get_files_autocomplete(file, expected_value):
     assert base.get_files_autocomplete(file) == expected_value
 
 
-@pytest.mark.parametrize('command', [
-    'food',
-    'cargo',
-])
-def test_autocomplete_file_for_command(command):
-    autocomplete_dict = base.get_autocomplete_file_for_command(command)
-    assert isinstance(list(autocomplete_dict)[0], dict)
+@mock.patch('sufler.base.yaml.load_all', return_value={'Yep': 'pancake'})
+def test_autocomplete_file_for_command(mock_load_all):
+    m = mock.mock_open(read_data="'Yep': 'pancake':")
+    with mock.patch('sufler.base.open', m):
+        autocomplete_dict = base.get_autocomplete_file_for_command('food')
+    assert isinstance(autocomplete_dict, dict)
+    mock_load_all.assert_called_once()
 
 
 @pytest.mark.parametrize('key, arguments, expected_value', [

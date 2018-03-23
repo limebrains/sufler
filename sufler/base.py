@@ -23,13 +23,16 @@ def get_files_autocomplete(already_typed):
             return [already_typed]
 
     path = '/'.join(already_typed.split('/')[:-1])
-    res = list(map(
-        lambda file:
-        file + '/'
-        if os.path.isdir(file)
-        else
-        file, os.listdir('{0}/{1}'.format(os.path.dirname(__file__), path))
-    ))
+    try:
+        res = list(map(
+            lambda file:
+            file + '/'
+            if os.path.isdir(file)
+            else
+            file, os.listdir('{0}/{1}'.format(os.getcwd(), path))
+        ))
+    except OSError:
+        res = [already_typed]
     return res
 
 
@@ -39,7 +42,9 @@ def get_autocomplete_file_for_command(command):
     :param command: The command for which read completions
     :return: Dict of completions for command
     """
-    path_to_command = os.path.expanduser('~/.sufler/completions/{0}.yml'.format(command))
+    path_to_command = os.path.expanduser(
+        '~/.sufler/completions/{0}.yml'.format(command)
+    )
     return yaml.load_all(open(path_to_command, "r"))
 
 
@@ -55,7 +60,9 @@ def replace_tree_marks(key, arguments):
 
         tree_index = -int(key[tree_mark_index+5])
 
-        key = key[:tree_mark_index] + arguments[tree_index] + key[tree_mark_index+6:]
+        key = key[:tree_mark_index] \
+            + arguments[tree_index] \
+            + key[tree_mark_index+6:]
 
         tree_mark_index = key.find('TREE~')
 
@@ -72,7 +79,8 @@ def completion(command_name, all_arguments):
     autocomplete_dict = get_autocomplete_file_for_command(command_name)
     root = list(autocomplete_dict)[0]
 
-    number_of_arguments, rest_arguments = int(all_arguments[1]), all_arguments[2:]
+    number_of_arguments = int(all_arguments[1])
+    rest_arguments = all_arguments[2:]
 
     if number_of_arguments == 0:
         return root
@@ -90,7 +98,8 @@ def completion(command_name, all_arguments):
             break
 
         current_keys = list(root.keys())
-        next_argument = rest_arguments[i + 1] if i + 1 < len(rest_arguments) else None
+        next_argument = rest_arguments[i + 1] \
+            if i + 1 < len(rest_arguments) else None
 
         for key in current_keys:
 
@@ -100,7 +109,8 @@ def completion(command_name, all_arguments):
             if key.startswith('<File'):
                 recursive = True if 'rec' in key else False
 
-                already_typed = next_argument if next_argument and recursive else argument
+                already_typed = next_argument \
+                    if next_argument and recursive else argument
                 files_matching = get_files_autocomplete(already_typed)
                 rest_of_tree = root.pop(key)
                 root.update({
@@ -134,7 +144,9 @@ def completion(command_name, all_arguments):
 
             if key.startswith('<Run'):
                 end_command = key.replace('<Run>', '')
-                print(r'&>/dev/null |  sufler run \"{end_command}\"'.format(end_command=end_command))
+                print(r'&>/dev/null |  sufler run \"{end_command}\"'.format(
+                    end_command=end_command)
+                )
                 root = {}
 
     return root

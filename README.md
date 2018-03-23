@@ -10,7 +10,7 @@ Sufler - is the tool to help you with generating bash/zsh/powershell/fish autoco
  
 ## Quickstart:
 ```
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
 ```
 
 or

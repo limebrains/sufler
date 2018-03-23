@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-BASE_URL = "https://github.com/radtomas/sufler/archive/initial-version.zip"
+base_url = "https://github.com/limebrains/sufler/archive/master.zip"
 
 if [ -z "$install_dir" ]; then
-    install_dir="."
+    install_dir="${HOME}"
 else
     if [ "${install_dir:0:1}" == "~" ]; then
         install_dir="${HOME}${install_dir:1}"
@@ -13,7 +13,7 @@ else
     fi
 fi
 
-curl -fsSL $BASE_URL -o sufler.zip
+curl -fsSL $base_url -o sufler.zip
 if [ ! -f sufler.zip ]; then
     printf "\n\e[1;31mInstallation unsuccessful due to failed download\e[0m\n"
     exit
@@ -24,6 +24,7 @@ if [ ! -d "$install_dir/.sufler" ]; then
     printf "\n\e[1;31mSufler installation unsuccessful due to failed unzip\e[0m\n"
     exit
 fi
-pip install -e "$install_dir/.sufler/"
+pip install -e "$install_dir/.sufler/sufler-master/"
+sufler install
 
 printf "\n\e[1;32mInstallation completed\e[0m\n"

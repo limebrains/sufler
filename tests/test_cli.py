@@ -17,29 +17,66 @@ def test_commands_not_installed(commands, completer_content, expected_values):
     assert cli.commands_not_installed(commands, completer_content) == expected_values
 
 
-def test_get_commands():
+@patch('sufler.cli.os.listdir', return_value=['food.yml', 'cargo.yml', 'flake8.yml'])
+def test_get_commands(mock_listdir):
     assert cli.get_commands() == ['food', 'cargo', 'flake8']
+    mock_listdir.assert_called_once()
 
 
-@patch('cli.detect_shells', return_value=[
+@patch('sufler.cli.get_completions_directory_from_git')
+@patch('sufler.cli.os.path.expanduser', return_value='')
+@patch('sufler.cli.os.listdir', side_effect=['pip', 'food'])
+@patch('sufler.cli.shutil.copyfile')
+def test_install_completion_files(
+        mock_copyfile,
+        mock_listdir,
+        mock_expand,
+        mock_get_completions):
+
+    cli.install_completion_files()
+
+    mock_copyfile.assert_called()
+    mock_listdir.assert_called()
+    mock_expand.assert_called()
+    assert len(mock_expand.mock_calls) == 5
+    mock_get_completions.assert_called()
+
+
+@patch('sufler.cli.detect_shells', return_value=[
     cli.Bash(),
     cli.Fish(),
     cli.Zsh(),
     cli.PowerShell(),
 ])
-@patch('cli.get_commands', return_values=[
+@patch('sufler.cli.get_commands', return_values=[
     'cargo',
     'food',
     'flake8',
 ])
-@patch('cli.BaseShell.install')
-def test_install_completions(mock_install, mock_get_commands, mock_detect_shells):
-    result = testing.CliRunner().invoke(cli.install_completions)
+@patch('sufler.cli.BaseShell.install')
+def test_install_command(mock_install, mock_get_commands, mock_detect_shells):
+    result = testing.CliRunner().invoke(cli.install_command)
 
     assert result.exit_code == 0
     assert len(mock_get_commands.mock_calls) == 4
     mock_install.called_once()
     mock_detect_shells.assert_called_once()
+
+
+@patch('sufler.cli.os.path.exists', return_value=False)
+@patch('sufler.cli.os.mkdir')
+@patch('sufler.cli.os.path.expanduser', return_value='')
+@patch('sufler.cli.yaml.dump')
+def test_init_command(mock_dump, mock_expanduser, mock_mkdir, mock_exists):
+    m = mock_open()
+    with patch('sufler.cli.open', m):
+        result = testing.CliRunner().invoke(cli.init_command)
+
+    assert result.exit_code == 0
+    mock_dump.assert_called_once()
+    mock_expanduser.assert_called_once_with('~')
+    mock_mkdir.assert_called()
+    mock_exists.assert_called()
 
 
 @pytest.mark.parametrize('command', [
@@ -97,7 +134,7 @@ def test_bash_zsh_install_commands(shell_to_cls):
     commands = ['food', 'cargo', 'flake8']
 
     m = mock_open(read_data='bash_completer cargo food ')
-    with patch('cli.open', m):
+    with patch('sufler.cli.open', m):
         shell.install_commands(commands)
 
     assert 'bash_completer cargo food \\ncomplete -F _completer -o default flake8' in str(m.mock_calls[6])
@@ -107,16 +144,16 @@ def test_bash_shell_initialize():
     shell = cli.Bash()
 
     m = mock_open(read_data='bash_completer {python_script_path}')
-    with patch('cli.open', m):
+    with patch('sufler.cli.open', m):
         shell.initialize()
 
-    assert 'bash_completer /Users/radtomas/PycharmProjects/sufler/backends/bash/bash.py' in str(m.mock_calls[6])
+    assert 'bash_completer /Users/radtomas/PycharmProjects/sufler/sufler/backends/bash/bash.py' in str(m.mock_calls[6])
 
 
-@patch('cli.Bash.get_install_path', return_value='')
-@patch('cli.pathlib.Path.exists', return_value=False)
-@patch('cli.Bash.initialize')
-@patch('cli.Bash.install_commands')
+@patch('sufler.cli.Bash.get_install_path', return_value='')
+@patch('sufler.cli.os.path.exists', return_value=False)
+@patch('sufler.cli.Bash.initialize')
+@patch('sufler.cli.Bash.install_commands')
 def test_bash_shell_install(mock_install_commands, mock_initialize, mock_exists, mock_get_install_path):
     shell = cli.Bash()
     commands = ['food', 'cargo', 'flake8']
@@ -126,26 +163,25 @@ def test_bash_shell_install(mock_install_commands, mock_initialize, mock_exists,
     mock_install_commands.assert_called_once_with(commands)
     mock_initialize.assert_called_once()
     mock_exists.assert_called_once()
-    mock_get_install_path.assert_called_once()
+    mock_get_install_path.assert_called()
 
-
-@patch('cli.subprocess.check_output')
+@patch('sufler.cli.subprocess.check_output')
 def test_zsh_shell_initialize(mock_check_output):
     shell = cli.Zsh()
 
     m = mock_open(read_data='bash_completer')
 
-    with patch('cli.open', m):
+    with patch('sufler.cli.open', m):
         shell.initialize()
 
     assert 'bash_completer' in str(m.mock_calls[10])
     mock_check_output.called_once()
 
 
-@patch('cli.Zsh.get_install_path', return_value='')
-@patch('cli.pathlib.Path.exists', return_value=False)
-@patch('cli.Zsh.initialize')
-@patch('cli.Zsh.install_commands')
+@patch('sufler.cli.Zsh.get_install_path', return_value='')
+@patch('sufler.cli.os.path.exists', return_value=False)
+@patch('sufler.cli.Zsh.initialize')
+@patch('sufler.cli.Zsh.install_commands')
 def test_zsh_shell_install(mock_install_commands, mock_initialize, mock_exists, mock_get_install_path):
     shell = cli.Zsh()
     commands = ['food', 'cargo', 'flake8']
@@ -158,13 +194,13 @@ def test_zsh_shell_install(mock_install_commands, mock_initialize, mock_exists, 
     mock_get_install_path.assert_called_once()
 
 
-@patch('cli.commands_not_installed', return_value=['cargo', 'food', 'flake8'])
+@patch('sufler.cli.commands_not_installed', return_value=['cargo', 'food', 'flake8'])
 def test_fish_shell_install(mock_commands_not_installed):
     shell = cli.Fish()
     commands = ['food', 'cargo', 'flake8']
 
     m = mock_open(read_data='')
-    with patch('cli.open', m):
+    with patch('sufler.cli.open', m):
         shell.install(commands)
 
     m.assert_called()
@@ -178,14 +214,14 @@ def test_powershell_install_file_path():
     assert str(result) == '/Users/radtomas/.config/powershell/Microsoft.PowerShell_profile.ps1'
 
 
-@patch('cli.PowerShell.get_install_path', return_value='')
-@patch('cli.pathlib.Path.exists', return_value=False)
-@patch('cli.subprocess.check_output')
+@patch('sufler.cli.PowerShell.get_install_path', return_value='')
+@patch('sufler.cli.os.path.exists', return_value=False)
+@patch('sufler.cli.subprocess.check_output')
 def test_powershell_install(mock_check_output, mock_exists, mock_get_install_path):
     shell = cli.PowerShell()
 
     m = mock_open(read_data='powershell_completer')
-    with patch('cli.open', m):
+    with patch('sufler.cli.open', m):
         shell.install([])
 
     assert m.call_count == 2

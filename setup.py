@@ -8,6 +8,11 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 req_path = os.path.join(dir_path, 'requirements.txt')
 
+requirements = [
+    line.split('==')[0]
+    for line in open(req_path, 'r').readlines()
+]
+
 
 class InstallScripts(install_scripts):
     def run(self):
@@ -26,7 +31,7 @@ setup(
     url='https://github.com/limebrains/sufler',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=req_path,
+    install_requires=requirements,
     entry_points="""\
       [console_scripts]
       sufler = sufler.cli:main

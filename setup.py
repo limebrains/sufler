@@ -4,10 +4,9 @@ from distutils.core import setup
 
 from setuptools import find_packages
 
-requirements = [
-    line.split('==')[0]
-    for line in open('requirements.txt', 'r').readlines()
-]
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+req_path = os.path.join(dir_path, 'requirements.txt')
 
 
 class InstallScripts(install_scripts):
@@ -27,7 +26,7 @@ setup(
     url='https://github.com/limebrains/sufler',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=req_path,
     entry_points="""\
       [console_scripts]
       sufler = sufler.cli:main

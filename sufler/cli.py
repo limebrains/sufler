@@ -148,7 +148,9 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
         self.install_commands(commands)
 
         try:
-            subprocess.check_output('. {0}/completer'.format(self.install_path))
+            subprocess.check_output(
+                '. {0}completer'.format(self.install_path)
+            )
         except OSError:
             pass
 

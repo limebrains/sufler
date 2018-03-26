@@ -4,7 +4,7 @@ if ((Test-Path Function:\TabExpansion) -and -not (Test-Path Function:\completerT
 
 
 function TabExpansion($line, $lastWord){
-	$tasks = @(python "/Users/radtomas/PycharmProjects/sufler/backends/powershell/powershell.py" $line $lastWord)
+	$tasks = @(python "/Users/radtomas/PycharmProjects/sufler/sufler/backends/powershell/powershell.py" $line $lastWord)
 	$lastOption = $line.Split(' ')[-1]
 
     if($tasks -match "^$lastOption"){

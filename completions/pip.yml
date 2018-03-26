@@ -1,23 +1,23 @@
 'pip': &pip
     'install': &install
-        '--constrain': &constraint
+        '--constrain': &install-constraint
             '<File>': *install
-        '-c': *constraint
-        '--editable': &editable
+        '-c': *install-constraint
+        '--editable': &install-editable
             '<File>': *install
-        '-e': *editable
-        '--requirement': &requirement
+        '-e': *install-editable
+        '--requirement': &install-requirement
             '<File>': *install
-        '-r': *requirement
-        '--build': &build
+        '-r': *install-requirement
+        '--build': &install-build
             '<File>': *install
-        '-b': *build
-        '--target': &target
+        '-b': *install-build
+        '--target': &install-target
             '<File>': *install
-        '-t': *target
-        '--download': &download
+        '-t': *install-target
+        '--download': &install-download
             '<File>': *install
-        '-d': *download
+        '-d': *install-download
         '--src':
             '<File>': *install
         '-U': *install
@@ -30,11 +30,161 @@
         '--ignore-installed': *install
         '--ignore-requires-python': *install
         '--no-deps': *install
-        '--install-option':
-
-
+        '--install-option': *install
+        '--global-option': *pip
+        '--user':
+            '<File>': *install
+        '--egg':
+            '<File>': *install
+        '--root':
+            '<File>': *install
+        '--prefix':
+            '<File>': *install
+        '--compile': *install
+        '--no-compile': *install
+        '--no-use-wheel': *install
+        '--no-binary':
+            ':none:': *install
+            ':all:': *install
+        '--only-binary': *install
+        '--pre': *install
+        '--no-clean': *install
+        '--require-hashes': *install
         '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *install
-
+    'download': &download
+        '--constraint': &download-constraint
+            '<File>': *download
+        '-c': *download-constraint
+        '--editable': &download-editable
+            '<File>': *download
+        '-e': *download-editable
+        '--requirement': &download-requirement
+            '<File>': *download
+        '-r': *download-requirement
+        '--build': &download-build
+            '<File>': *download
+        '-b': *download-build
+        '--no-deps': *download
+        '--global-option': *pip
+        '--no-binary':
+            ':none:': *download
+            ':all:': *download
+        '--only-binary':
+            ':none:':
+                '--platform':
+                    '<Exec> uname -m': *download
+            ':all:':
+                '--platform':
+                    '<Exec> uname -m': *download
+        '--src':
+            '<File>': *download
+        '--pre': *download
+        '--no-clean': *download
+        '--require-hashes': *download
+        '--dest ': &download-dest
+            '<File>': *download
+        '-d': *download-dest
+        '--python-version':
+            '<Regex>^\d\d': *download
+        '--implementation':
+            'pp': *download
+            'jy': *download
+            'cp': *download
+            'ip': *download
+        '--abi':
+            '<Regex>.*': *download
+        '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *download
+    'uninstall': &uninstall
+        '--requirement': &uninstall-requirement
+            '<File>': *uninstall
+        '-r': *uninstall-requirement
+        '--yes': *uninstall
+        '-y': *uninstall
+        '<Exec> pip freeze | sed "s/=.*//"': *uninstall
+    'freeze': &freeze
+        '--requirement': &freeze-requirement
+            '<File>': *freeze
+        '-r': *freeze-requirement
+        '--find-links': &freeze-find
+            '<Regex>.*': *freeze
+        '-f': *freeze-find
+        '--local': *freeze
+        '-l': *freeze
+        '--user': *freeze
+        '--all': *freeze
+    'list': &list
+        '--outdated': *list
+        '-o': *list
+        '--uptodate': *list
+        '-u': *list
+        '--editable': *list
+        '-e': *list
+        '--local': *list
+        '-l': *list
+        '--user': *list
+        '--pre': *list
+        '--format':
+            '<Regex>.*': *list
+        '--not-required': *list
+    'show': &show
+        '--files': *show
+        '-f': *show
+    'check': *pip
+    'search':
+        '--index': &search-index
+            '<Regex>.*':
+        '-i': *search-index
+    'wheel': &wheel
+        '--wheel-dir': &wheel-wheel-dir
+            '<File>': *wheel
+        '-w': *wheel-wheel-dir
+        '-no-use-wheel': *wheel
+        '--no-binary':
+            ':none:': *wheel
+            ':all:': *wheel
+            '<Regex>.*': *wheel
+        '--only-binary':
+            ':none:': *wheel
+            ':all:': *wheel
+            '<Regex>.*': *wheel
+        '--build-option':
+            '<Regex>.*': *wheel
+        '--constrain': &wheel-constraint
+            '<File>': *wheel
+        '-c': *wheel-constraint
+        '--editable': &wheel-editable
+            '<File>': *wheel
+        '-e': *wheel-editable
+        '--requirement': &wheel-requirement
+            '<File>': *wheel
+        '-r': *wheel-requirement
+        '--src':
+            '<File>': *wheel
+        '--ignore-requires-python': *wheel
+        '--no-deps': *wheel
+        '--build': &wheel-build
+            '<File>': *wheel
+        '-b': *wheel-build
+        '--global-option':
+            '<Regex>.*': *wheel
+        '--pre': *wheel
+        '--no-clean': *wheel
+        '--require-hashes': *wheel
+        '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *wheel
+    'hash':
+        '--algorithm': &hash-algorithm
+            'sha256':
+            'sha384':
+            'sha512':
+        '-a': *hash-algorithm
+    'completion':
+        '--bash':
+        '-b':
+        '--zsh':
+        '-z':
+        '--fish':
+        '-f':
+    'help': *pip
     '-h': *pip
     '--help': *pip
     '--isolated': *pip

@@ -182,8 +182,12 @@ class Zsh(BashZshInstallCommandsMixin, BaseShell):
             f.write(completer_content)
 
         command = 'echo ". {0}" >> ~/.zshrc'.format(
-            self.install_path + '/completer'
+            self.install_path + 'completer'
         )
+        if os.path.exists('~/.zshrc'):
+            index = command.find('"') + 1
+            command = '{0} && {1}'.format(command[:index], command[index:])
+
         subprocess.check_output(command, shell=True)
 
     def install(self, commands):
@@ -298,7 +302,7 @@ def commands_not_installed(commands, completer_content):
     ]
 
 
-def get_commands():
+def get_commands(name):
     """ Looking for commands .yml file in completions directory
 
     :return: List of commands found in completions directory
@@ -309,6 +313,9 @@ def get_commands():
         for file in os.listdir(completions_path)
         if file.endswith('.yml')
     ]
+
+    if name and os.path.isfile('{0}{1}.yml'.format(completions_path, name)):
+        return [name]
 
     return [
         str(command).split('/')[-1][:-4]
@@ -343,6 +350,8 @@ def install_completion_files():
     Check difference between sufler completions folder
     and git completions folder.
     After check copy only files not in sufler completions folder.
+
+    :param name: completion fle name
     """
     get_completions_directory_from_git()
 
@@ -380,7 +389,7 @@ def install_command(ctx, name):
     install_completion_files()
 
     shells = detect_shells()
-    commands = get_commands()
+    commands = get_commands(name)
     for shell in shells:
         shell.install(commands)
 

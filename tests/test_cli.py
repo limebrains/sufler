@@ -109,12 +109,17 @@ SHELL_LIST = [
 def test_base_shell_get_install_path(mock_exists, shell_to_class, expected_values):
     shell = shell_to_class()
     assert shell.get_install_path() == expected_values[0]
+    mock_exists.assert_called()
 
 
+@patch('sufler.cli.BaseShell.get_install_path', return_value='something')
 @pytest.mark.parametrize('shell_to_class, expected_values', SHELL_LIST)
-def test_base_shell_install_path(shell_to_class, expected_values):
+def test_base_shell_install_path(mock_get_install_path, shell_to_class, expected_values):
+
     shell = shell_to_class()
-    assert shell.install_path == expected_values[0]
+
+    assert shell.install_path == 'something'
+    mock_get_install_path.assert_called()
 
 
 @patch('sufler.cli.BaseShell.get_install_path', return_value='something')
@@ -136,6 +141,7 @@ def test_base_shell_install_file_path(mock_get_install_path, shell_to_class, exp
 def test_base_shell_exists(mock_get_install_path, shell_to_class):
     shell = shell_to_class()
     assert shell.exists()
+    mock_get_install_path.assert_called()
 
 
 @pytest.mark.parametrize('shell_to_cls', [

@@ -19,11 +19,13 @@ def test_commands_not_installed(commands, completer_content, expected_values):
     assert cli.commands_not_installed(commands, completer_content) == expected_values
 
 
+@patch('sufler.cli.os.path.isfile', return_value=True)
 @patch('sufler.cli.os.listdir', return_value=['food.yml', 'cargo.yml', 'flake8.yml'])
-def test_get_commands(mock_listdir):
+def test_get_commands(mock_listdir, mock_isfile):
     assert cli.get_commands(None) == ['food', 'cargo', 'flake8']
     assert cli.get_commands('pip') == ['pip']
     assert len(mock_listdir.mock_calls) == 2
+    mock_isfile.assert_called()
 
 
 @patch('sufler.cli.get_completions_directory_from_git')
@@ -102,8 +104,9 @@ SHELL_LIST = [
 ]
 
 
+@patch('sufler.cli.os.path.exists', return_value=True)
 @pytest.mark.parametrize('shell_to_class, expected_values', SHELL_LIST)
-def test_base_shell_get_install_path(shell_to_class, expected_values):
+def test_base_shell_get_install_path(mock_exists, shell_to_class, expected_values):
     shell = shell_to_class()
     assert shell.get_install_path() == expected_values[0]
 
@@ -114,19 +117,23 @@ def test_base_shell_install_path(shell_to_class, expected_values):
     assert shell.install_path == expected_values[0]
 
 
+@patch('sufler.cli.BaseShell.get_install_path', return_value='something')
 @pytest.mark.parametrize('shell_to_class, expected_values', SHELL_LIST[:-1])
-def test_base_shell_install_file_path(shell_to_class, expected_values):
+def test_base_shell_install_file_path(mock_get_install_path, shell_to_class, expected_values):
+
     shell = shell_to_class()
+
     assert str(shell.install_file_path) == '{0}completer'.format(expected_values[0])
+    mock_get_install_path.assert_called()
 
-
+@patch('sufler.cli.BaseShell.get_install_path', return_value='not empty string')
 @pytest.mark.parametrize('shell_to_class', [
     (cli.SHELL_NAME_TO_CLASS['bash']),
     (cli.SHELL_NAME_TO_CLASS['fish']),
     (cli.SHELL_NAME_TO_CLASS['zsh']),
     (cli.SHELL_NAME_TO_CLASS['powershell']),
 ])
-def test_base_shell_exists(shell_to_class):
+def test_base_shell_exists(mock_get_install_path, shell_to_class):
     shell = shell_to_class()
     assert shell.exists()
 
@@ -153,7 +160,7 @@ def test_bash_shell_initialize():
     with patch('sufler.cli.open', m):
         shell.initialize()
 
-    assert 'bash_completer /Users/radtomas/PycharmProjects/sufler/sufler/backends/bash/bash.py' in str(m.mock_calls[6])
+    assert m.call_count == 2
 
 
 @patch('sufler.cli.Bash.get_install_path', return_value='')
@@ -171,8 +178,10 @@ def test_bash_shell_install(mock_install_commands, mock_initialize, mock_exists,
     mock_exists.assert_called_once()
     mock_get_install_path.assert_called()
 
+
+@patch('sufler.cli.Zsh.get_install_path', return_value='')
 @patch('sufler.cli.subprocess.check_output')
-def test_zsh_shell_initialize(mock_check_output):
+def test_zsh_shell_initialize(mock_check_output, mock_get_install_path):
     shell = cli.Zsh()
 
     m = mock_open(read_data='bash_completer')
@@ -182,6 +191,7 @@ def test_zsh_shell_initialize(mock_check_output):
 
     assert 'bash_completer' in str(m.mock_calls[10])
     mock_check_output.called_once()
+    mock_get_install_path.assert_called()
 
 
 @patch('sufler.cli.Zsh.get_install_path', return_value='')
@@ -200,8 +210,9 @@ def test_zsh_shell_install(mock_install_commands, mock_initialize, mock_exists, 
     mock_get_install_path.assert_called_once()
 
 
+@patch('sufler.cli.os.listdir', return_value='')
 @patch('sufler.cli.commands_not_installed', return_value=['cargo', 'food', 'flake8'])
-def test_fish_shell_install(mock_commands_not_installed):
+def test_fish_shell_install(mock_commands_not_installed, mock_listdir, ):
     shell = cli.Fish()
     commands = ['food', 'cargo', 'flake8']
 
@@ -211,13 +222,16 @@ def test_fish_shell_install(mock_commands_not_installed):
 
     m.assert_called()
     mock_commands_not_installed.assert_called_once()
+    mock_listdir.assert_called()
 
 
-def test_powershell_install_file_path():
+@patch('sufler.cli.PowerShell.get_install_path', return_value='/Users/radtomas/.config/powershell/')
+def test_powershell_install_file_path(mock_install_path):
     shell = cli.PowerShell()
 
     result = shell.install_file_path
     assert str(result) == '/Users/radtomas/.config/powershell/Microsoft.PowerShell_profile.ps1'
+    mock_install_path.assert_called()
 
 
 @patch('sufler.cli.PowerShell.get_install_path', return_value='')

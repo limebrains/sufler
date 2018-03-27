@@ -4,7 +4,7 @@ _completer()
     local cur opts IFS
     COMPREPLY=()
     cur="${{COMP_WORDS[COMP_CWORD]}}"
-    opts=$(python {python_script_path} ${{COMP_CWORD}} ${{COMP_WORDS[@]}})
+    opts=$({python_executable} {python_script_path} ${{COMP_CWORD}} ${{COMP_WORDS[@]}})
 
     COMPREPLY=( $( compgen -W "${{opts}}" -- "${{cur}}" ) )
 

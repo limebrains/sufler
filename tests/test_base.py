@@ -1,7 +1,10 @@
+import mock
+import os
+import pytest
+import yaml
+
 from sufler import base
 
-import pytest
-import mock
 
 @pytest.mark.parametrize('file, expected_value', [
     ('sufler/base.py', ['sufler/base.py']),
@@ -40,10 +43,14 @@ def test_replace_tree_marks(key, arguments, expected_value):
 
 
 @pytest.mark.parametrize('command_name, all_arguments, expected_value', [
-    ('food', ['path', '3', 'food', 'veg', '-c'], ['broccoli', '"brussel sprouts"', 'asparagus']),
-    ('food', ['path', '3', 'food', 'fruit', 'README.md', 'cat'], []),
-    ('food', ['path', '3', 'food', '-r', 'README.md'], ['fruit', 'veg', 'candy', 'booze:', 'meat', 'dairy:', '-f', '-r', '--color', 'other', 'deploy']),
-    ('food', ['path', '3', 'food', '--color', 'black'], ['avocado', 'tomato']),
+    ('food', ['path', '3', 'food', 'veg', '-c'], ['asparagus', 'broccoli', '"brussel sprouts"']),
+    ('food', ['path', '3', 'food', 'fruit', '', 'cat'], ['-f', 'meat', 'candy', 'dairy:', 'veg', 'fruit', '-r', 'booze:', '--color', 'other']),
+    ('food', ['path', '3', 'food', '-r', 'README.md'], ['-f', 'meat', 'candy', 'dairy:', 'veg', 'fruit', '-r', 'booze:', '--color', 'other']),
+    ('food', ['path', '3', 'food', '--color', 'black'], ['tomato', 'avocado']),
 ])
 def test_completion(command_name, all_arguments, expected_value):
-    assert list(base.completion(command_name, all_arguments).keys()) == expected_value
+    path = os.path.abspath(os.path.dirname(__file__)) + '/test_data.yml'
+    test_data = yaml.load_all(open(path, "r"))
+
+    with mock.patch('sufler.base.get_autocomplete_file_for_command', return_value=test_data):
+        assert set(base.completion(command_name, all_arguments).keys()) == set(expected_value)

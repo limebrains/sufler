@@ -123,7 +123,7 @@ def test_base_shell_install_file_path(mock_get_install_path, shell_to_class, exp
 
     shell = shell_to_class()
 
-    assert str(shell.install_file_path) == '{0}completer'.format(expected_values[0])
+    assert str(shell.install_file_path) == 'somethingcompleter'
     mock_get_install_path.assert_called()
 
 @patch('sufler.cli.BaseShell.get_install_path', return_value='not empty string')

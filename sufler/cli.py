@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import zipfile
 
 import click
@@ -31,17 +32,11 @@ COMMAND_FOR_SHELL = {
     'bash': '\ncomplete -F _completer -o default {0}',
     'zsh': '\ncomplete -F _completer -o default {0}',
     'fish': '\ncomplete --command {0} --arguments \''
-            '(python \"{1}/backends/fish/fish.py\" (commandline -cp))\' -f',
+            '({1} \"{2}/backends/fish/fish.py\" (commandline -cp))\' -f',
 }
 
 CONFIG_DATA = {
     'repos': [
-        {
-            'url': 'https://github.com/limebrains/sufler-completions.git',
-        },
-        {
-            'url': 'git@github.com:limebrains/sufler-completions.git',
-        },
         {
             'url': 'https://github.com/limebrains/sufler-completions'
                    '/archive/master.zip'
@@ -134,8 +129,9 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
             completer_content = f.read()
 
         completer_content = completer_content.format(
-            python_script_path='{0}/backends/'
-                               'bash/bash.py'.format(SUFLER_BASE_PATH)
+            python_executable=sys.executable,
+            python_script_path='{0}/backends'
+                               '/bash/bash.py'.format(SUFLER_BASE_PATH)
         )
 
         with open(str(self.install_file_path), 'w') as f:
@@ -145,13 +141,6 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
         if not os.path.exists(self.install_file_path):
             self.initialize()
         self.install_commands(commands)
-
-        try:
-            subprocess.check_output(
-                '. {0}completer'.format(self.install_path)
-            )
-        except OSError:
-            pass
 
 
 class Zsh(BashZshInstallCommandsMixin, BaseShell):
@@ -174,6 +163,7 @@ class Zsh(BashZshInstallCommandsMixin, BaseShell):
 
         completer_content = completer_content.format(
             bash_content=bash_completer_content.format(
+                python_executable=sys.executable,
                 python_script_path=bash_backend_path + '/bash.py'
             )
         )
@@ -184,7 +174,7 @@ class Zsh(BashZshInstallCommandsMixin, BaseShell):
         command = 'echo ". {0}" >> ~/.zshrc'.format(
             self.install_path + 'completer'
         )
-        if os.path.exists('~/.zshrc'):
+        if os.path.isfile(os.path.expanduser('~/.zshrc')):
             index = command.find('"') + 1
             command = '{0} && {1}'.format(command[:index], command[index:])
 
@@ -212,7 +202,7 @@ class Fish(BaseShell):
         )
 
         for command in not_installed_commands:
-            command_completer_file = '{0}/{1}.fish'.format(
+            command_completer_file = '{0}{1}.fish'.format(
                 self.install_path,
                 command
             )
@@ -220,6 +210,7 @@ class Fish(BaseShell):
             with open(command_completer_file, 'w') as f:
                 f.write(COMMAND_FOR_SHELL[self.shell_name].format(
                     command,
+                    sys.executable,
                     SUFLER_BASE_PATH
                 ))
 
@@ -244,8 +235,10 @@ class PowerShell(BaseShell):
                 completer_content = f.read()
 
             completer_content = completer_content.format(
+                python_executable=sys.executable,
                 python_script_path="{0}/backends/powershell/"
-                                   "powershell.py".format(SUFLER_BASE_PATH))
+                                   "powershell.py".format(SUFLER_BASE_PATH)
+            )
 
             completer_script_path = "{0}/backends/powershell/" \
                                     "completer.ps1".format(SUFLER_BASE_PATH)
@@ -372,6 +365,7 @@ def install_completion_files():
             '{0}/{1}'.format(zip_completions_path, file),
             os.path.expanduser('~/.sufler/completions/' + file)
         )
+    shutil.rmtree(os.path.expanduser('~/.sufler/zip_completions'))
 
 
 @cli.command('install')

@@ -14,6 +14,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('.'))
 cwd = os.getcwd()
 project_root = os.path.dirname(cwd)

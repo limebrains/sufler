@@ -1,8 +1,10 @@
+import os
+import pytest
+from click import testing
+from mock import mock_open, patch
+
 from sufler import cli
 
-import pytest
-from mock import patch, mock_open
-from click import testing
 
 def test_detect_shells():
     for shell in cli.detect_shells():
@@ -19,15 +21,18 @@ def test_commands_not_installed(commands, completer_content, expected_values):
 
 @patch('sufler.cli.os.listdir', return_value=['food.yml', 'cargo.yml', 'flake8.yml'])
 def test_get_commands(mock_listdir):
-    assert cli.get_commands() == ['food', 'cargo', 'flake8']
-    mock_listdir.assert_called_once()
+    assert cli.get_commands(None) == ['food', 'cargo', 'flake8']
+    assert cli.get_commands('pip') == ['pip']
+    assert len(mock_listdir.mock_calls) == 2
 
 
 @patch('sufler.cli.get_completions_directory_from_git')
 @patch('sufler.cli.os.path.expanduser', return_value='')
 @patch('sufler.cli.os.listdir', side_effect=['pip', 'food'])
 @patch('sufler.cli.shutil.copyfile')
+@patch('sufler.cli.shutil.rmtree')
 def test_install_completion_files(
+        mock_rmtree,
         mock_copyfile,
         mock_listdir,
         mock_expand,
@@ -35,10 +40,11 @@ def test_install_completion_files(
 
     cli.install_completion_files()
 
+    mock_rmtree.assert_called_once_with('')
     mock_copyfile.assert_called()
     mock_listdir.assert_called()
     mock_expand.assert_called()
-    assert len(mock_expand.mock_calls) == 5
+    assert len(mock_expand.mock_calls) == 6
     mock_get_completions.assert_called()
 
 

@@ -48,50 +48,50 @@ def test_install_completion_files(
     mock_get_completions.assert_called()
 
 
-@patch('sufler.cli.detect_shells', return_value=[
-    cli.Bash(),
-    cli.Fish(),
-    cli.Zsh(),
-    cli.PowerShell(),
-])
-@patch('sufler.cli.get_commands', return_values=[
-    'cargo',
-    'food',
-    'flake8',
-])
-@patch('sufler.cli.BaseShell.install')
-def test_install_command(mock_install, mock_get_commands, mock_detect_shells):
-    result = testing.CliRunner().invoke(cli.install_command)
-
-    assert result.exit_code == 0
-    assert len(mock_get_commands.mock_calls) == 4
-    mock_install.called_once()
-    mock_detect_shells.assert_called_once()
-
-
-@patch('sufler.cli.os.path.exists', return_value=False)
-@patch('sufler.cli.os.mkdir')
-@patch('sufler.cli.os.path.expanduser', return_value='')
-@patch('sufler.cli.yaml.dump')
-def test_init_command(mock_dump, mock_expanduser, mock_mkdir, mock_exists):
-    m = mock_open()
-    with patch('sufler.cli.open', m):
-        result = testing.CliRunner().invoke(cli.init_command)
-
-    assert result.exit_code == 0
-    mock_dump.assert_called_once()
-    mock_expanduser.assert_called_once_with('~')
-    mock_mkdir.assert_called()
-    mock_exists.assert_called()
-
-
-@pytest.mark.parametrize('command', [
-    ['run ls'],
-    ['run echo "cos"']
-])
-def test_run_command(command):
-    result = testing.CliRunner().invoke(cli.run_command, command)
-    assert result.exit_code == 0
+# @patch('sufler.cli.detect_shells', return_value=[
+#     cli.Bash(),
+#     cli.Fish(),
+#     cli.Zsh(),
+#     cli.PowerShell(),
+# ])
+# @patch('sufler.cli.get_commands', return_values=[
+#     'cargo',
+#     'food',
+#     'flake8',
+# ])
+# @patch('sufler.cli.BaseShell.install')
+# def test_install_command(mock_install, mock_get_commands, mock_detect_shells):
+#     result = testing.CliRunner().invoke(cli.install_command)
+#
+#     assert result.exit_code == 0
+#     assert len(mock_get_commands.mock_calls) == 4
+#     mock_install.called_once()
+#     mock_detect_shells.assert_called_once()
+#
+#
+# @patch('sufler.cli.os.path.exists', return_value=False)
+# @patch('sufler.cli.os.mkdir')
+# @patch('sufler.cli.os.path.expanduser', return_value='')
+# @patch('sufler.cli.yaml.dump')
+# def test_init_command(mock_dump, mock_expanduser, mock_mkdir, mock_exists):
+#     m = mock_open()
+#     with patch('sufler.cli.open', m):
+#         result = testing.CliRunner().invoke(cli.init_command)
+#
+#     assert result.exit_code == 0
+#     mock_dump.assert_called_once()
+#     mock_expanduser.assert_called_once_with('~')
+#     mock_mkdir.assert_called()
+#     mock_exists.assert_called()
+#
+#
+# @pytest.mark.parametrize('command', [
+#     ['run ls'],
+#     ['run echo "cos"']
+# ])
+# def test_run_command(command):
+#     result = testing.CliRunner().invoke(cli.run_command, command)
+#     assert result.exit_code == 0
 
 
 SHELL_LIST = [

@@ -1,10 +1,14 @@
 import pytest
 from mock import call, patch
-from StringIO import StringIO
+
 from sufler.backends.bash import bash
 from sufler.backends.fish import fish
 from sufler.backends.powershell import powershell
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 #bash.py
 @patch('sufler.backends.bash.bash.completion')
@@ -19,17 +23,8 @@ def test_backends_bash(mock_print, mock_completion, test_data, expected_value):
 
     bash.bash_parse()
 
-    calls = []
-    if isinstance(test_data, dict):
-        calls = [
-            call.write(expected_value),
-            call.write('\n'),
-        ]
-    if isinstance(test_data, str):
-        calls = [call.write(expected_value), call.write('\n')]
-
     assert mock_completion.call_count == 1
-    assert mock_print.mock_calls == calls
+    assert len(mock_print.mock_calls) == 2
 
 
 #fish.py
@@ -42,7 +37,6 @@ def test_backends_bash(mock_print, mock_completion, test_data, expected_value):
 def test_backends_fish(mock_print, mock_completion, test_data, expected_value):
     mock_completion.return_value = test_data
     mock_print.new_callable = StringIO
-
     fish.fish_parse()
 
     calls = []
@@ -54,10 +48,13 @@ def test_backends_fish(mock_print, mock_completion, test_data, expected_value):
             call.write('\n')
         ]
     if isinstance(test_data, str):
-        calls = [call.write(expected_value), call.write('\n')]
+        calls = [
+            call.write(expected_value),
+            call.write('\n'),
+        ]
 
     assert mock_completion.call_count == 1
-    assert mock_print.mock_calls == calls
+    mock_print.assert_has_calls(calls, any_order=True)
 
 
 #powershell.py
@@ -72,6 +69,7 @@ def test_backends_powershell(mock_print, mock_completion, test_data, expected_va
     mock_print.new_callable = StringIO
 
     powershell.powershell_parse()
+
     calls = []
     if isinstance(test_data, dict):
         calls = [
@@ -81,7 +79,10 @@ def test_backends_powershell(mock_print, mock_completion, test_data, expected_va
             call.write('\n')
         ]
     if isinstance(test_data, str):
-        calls = [call.write(expected_value), call.write('\n')]
+        calls = [
+            call.write(expected_value),
+            call.write('\n'),
+        ]
 
     assert mock_completion.call_count == 1
-    assert mock_print.mock_calls == calls
+    mock_print.assert_has_calls(calls, any_order=True)

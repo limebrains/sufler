@@ -1,0 +1,207 @@
+'npm': &npm
+    'access':
+        'public':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+        'restricted':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+        'grant':
+            'read-only':
+                '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+            'read-write':
+                '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+        'revoke':
+            '<Regex>.*':
+                '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+        'ls-packages':
+            '<Regex>.*':
+        'ls-collaborators':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+                '<Exec> npm whoami':
+        'edit':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+    'list': &list
+        '-json': *list
+        '-long': *list
+        '-parseable': *list
+        '-global': *list
+        '-depth=':
+            '<Regex>^\d*': *list
+    'ls': *list
+    'll': *list
+    'la': *list
+    'adduser': &adduser
+        '--registry=':
+            '<Regex>^http:.*': *adduser
+        '--scope=':
+            '<Regex>^@.*': *adduser
+        '--always-auth': *adduser
+        'auth-type=':
+            'legacy': *adduser
+            'sso': *adduser
+            'saml': *adduser
+            'oauth': *adduser
+    'login': *adduser
+    'bin':
+        '--global':
+        '-g':
+    'bugs':
+        '--browse=':
+            'open':
+            'start':
+            'xdg-open':
+        '--registry=':
+            'https://registry.npmjs.org/':
+            '<Regex>^http:.*':
+    'cache':
+        'add':
+            '<File>':
+            '<Regex>^https:.*':
+            '<Regex>.*@.*':
+        'clean':
+        'clear':
+        'rm':
+        'verify':
+    'completion':
+        '>>':
+            '~/.bashrc':
+            '~/.zshrc':
+            '<File>':
+        '>':
+            '<File>':
+    'config': &config
+        'set':
+            '<Regex>.*':
+                '<Regex>.*':
+                    '-g':
+                    '--global':
+        'get':
+            '<Regex>.*':
+        'delete':
+            '<Regex>.*':
+        'list':
+            '-l':
+            '--json':
+        'edit':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //"':
+    'c': *config
+    'set':
+        '<Regex>.*':
+            '<Regex>.*':
+                '-g':
+                '--global':
+    'get':
+        '<Regex>.*':
+    'dedupe': &dedupe
+        '<Regex>.*':
+    'ddp': *dedupe
+    'find-dupes': *dedupe
+    'deprecate':
+        '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //"':
+    'dist-tag': &dist-tag
+        'add':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //"':
+                '<Regex>.*':
+        'rm':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+                '<Regex>.*':
+        'ls':
+            '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+    'dist-tags': *dist-tag
+    'docs': &docs
+        '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"': *docs
+        '--browser=':
+            open': *docs
+            'start': *docs
+            'xdg-open': *docs
+        '--registry=':
+            'https://registry.npmjs.org/': *docs
+            '<Regex>^http:.*': *docs
+    'doctor':
+    'edit':
+        '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //"':
+    'explore':
+        '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"': *npm
+    'help': &help
+        '<Regex>.*': *help
+    'help-search':
+        '--long=':
+            'True':
+            'False':
+    'install': &install
+        '<File>':
+        '<Exec> wget "https://www.npmjs.com/search/suggestions?q=TREE~1" -O ~/.sufler/npm_completions -c -q && cat ~/.sufler/npm_completions | awk -F=":" -v RS="," ''$1~/"name"/ {print}'' | awk "NR % 2 == 1" | sed "s/.*":".//" | sed ''s/"$//''': *install
+    'i': *install
+    'init':
+        '-f':
+        '--force':
+        '-y':
+        '--yes':
+    'install-test': &install-test
+        '<File>': *install-test
+        '<Regex>^https:.*': *install-test
+        '--save': *install-test
+        '--save-dev': *install-test
+        '--save-optional': *install-test
+        'save-exact': *install-test
+        '--dey-run': *install-test
+    'it': *install-test
+    'link': &link
+        '<Exec> npm list -g --depth=1 | tail -n+2 | sed "s/.* //" | sed "s/@.*//"':
+    'ln': *link
+    'logout':
+        '--registry=':
+            'https://registry.npmjs.org/':
+            '<Regex>^http:.*':
+        '--scope=':
+            '<Regex>^@.*':
+    'run-script': &run
+        <<: *npm
+        '--silent': *run
+    'run': *run
+    'uninstall': &uninstall
+        '--save-prod': *uninstall
+        '--save-dev': *uninstall
+        '--save-optional': *uninstall
+        '--no-save': *uninstall
+        '<Exec> npm ls | tail -n+2 | sed "s/.* //"': *uninstall
+    'un': *uninstall
+    'unlink': *uninstall
+    'remove': *uninstall
+    'rm': *uninstall
+    'r': *uninstall
+    'search': &search
+        '--long': *search
+    's': *search
+    'se': *search
+    'find': *search
+    'outdated':
+    'owner':
+    'pack':
+    'ping':
+    'prefix':
+    'profile':
+    'prune':
+    'publish':
+    'rb':
+    'rebuild':
+    'repo':
+    'restart':
+    'root':
+    'shrinkwrap':
+    'star':
+    'stars':
+    'start':
+    'stop':
+    't':
+    'team':
+    'test':
+    'token':
+    'tst':
+    'unpublish':
+    'unstar':
+    'up':
+    'update':
+    'v':
+    'version':
+    'view':
+    'whoami':

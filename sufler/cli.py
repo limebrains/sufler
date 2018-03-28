@@ -7,7 +7,6 @@ import zipfile
 import click
 import requests
 import yaml
-
 from sufler.base import SUFLER_BASE_PATH
 
 cli = click.Group()

@@ -14,7 +14,8 @@ cli = click.Group()
 PATH_FOR_SHELL = {
     'bash': [
         '/usr/local/etc/bash_completion.d/',
-        '/usr/bin/bash_completion.d/'
+        '/usr/bin/bash_completion.d/',
+        '/etc/bash_completion.d/',
     ],
     'fish': [
         '{0}/.config/fish/completions/'.format(os.path.expanduser('~')),

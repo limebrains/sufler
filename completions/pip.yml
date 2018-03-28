@@ -50,7 +50,7 @@
         '--pre': *install
         '--no-clean': *install
         '--require-hashes': *install
-        '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *install
+        '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/pip_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *install
     'download': &download
         '--constraint': &download-constraint
             '<File>': *download

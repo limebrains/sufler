@@ -129,7 +129,7 @@
             'False':
     'install': &install
         '<File>':
-        '<Regex>^https:.*':
+        '<Exec> wget "https://www.npmjs.com/search/suggestions?q=TREE~1" -O ~/.sufler/npm_completions -c -q && cat ~/.sufler/npm_completions | awk -F=":" -v RS="," ''$1~/"name"/ {print}'' | awk "NR % 2 == 1" | sed "s/.*":".//" | sed ''s/"$//''': *install
     'i': *install
     'init':
         '-f':
@@ -154,10 +154,26 @@
             '<Regex>^http:.*':
         '--scope=':
             '<Regex>^@.*':
-curl "https://www.npmjs.com/search/suggestions?q=jquer"
-    'run':
-    'uninstall':
-    'search':
+    'run-script': &run
+        <<: *npm
+        '--silent': *run
+    'run': *run
+    'uninstall': &uninstall
+        '--save-prod': *uninstall
+        '--save-dev': *uninstall
+        '--save-optional': *uninstall
+        '--no-save': *uninstall
+        '<Exec> npm ls | tail -n+2 | sed "s/.* //"': *uninstall
+    'un': *uninstall
+    'unlink': *uninstall
+    'remove': *uninstall
+    'rm': *uninstall
+    'r': *uninstall
+    'search': &search
+        '--long': *search
+    's': *search
+    'se': *search
+    'find': *search
     'outdated':
     'owner':
     'pack':
@@ -171,9 +187,6 @@ curl "https://www.npmjs.com/search/suggestions?q=jquer"
     'repo':
     'restart':
     'root':
-    'run-script':
-    's':
-    'se':
     'shrinkwrap':
     'star':
     'stars':
@@ -184,7 +197,6 @@ curl "https://www.npmjs.com/search/suggestions?q=jquer"
     'test':
     'token':
     'tst':
-    'un':
     'unpublish':
     'unstar':
     'up':

@@ -2,3 +2,4 @@ PyYAML==3.12
 click==6.7
 requests==2.18.4
 click-log==0.2.1
+six

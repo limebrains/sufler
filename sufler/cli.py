@@ -9,12 +9,8 @@ import click
 import click_log
 import requests
 import yaml
+from six.moves import input
 from sufler.base import SUFLER_BASE_PATH
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 logger = logging.getLogger(__name__)
 click_log.basic_config(logger)

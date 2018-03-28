@@ -2,7 +2,7 @@
  
 Sufler - is the tool to help you with generating bash/zsh/powershell/fish autocompletions from yml file. 
 
-[![travis](https://img.shields.io/travis/limebrains/sufler.svg)](https://travis-ci.org/limebrains/sufler)
+[![Build Status](https://travis-ci.org/limebrains/sufler.svg?branch=master)](https://travis-ci.org/limebrains/sufler)
 [![coveralls](https://coveralls.io/repos/limebrains/sufler/badge.svg?branch=master&service=github)](https://coveralls.io/github/limebrains/sufler?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/sufler/badge/?version=latest)](http://sufler.readthedocs.io/en/latest/?badge=latest)
 

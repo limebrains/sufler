@@ -8,7 +8,7 @@ Sufler - is the tool to help you with generating bash/zsh/powershell/fish autoco
 
 [Documentation](http://sufler.readthedocs.io/en/latest/?badge=latest)
  
-##Usage
+## Usage
 
 [![gif](https://i.imgur.com/u09q5be.gif)](http://sufler.readthedocs.io)
 

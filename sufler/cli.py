@@ -23,12 +23,17 @@ PATH_FOR_SHELL = {
         '/usr/bin/bash_completion.d/',
         '/etc/bash_completion.d/',
     ],
+    'bash_default': '{0}/bash_completion.d/'.format(os.path.expanduser('~')),
     'fish': [
         '{0}/.config/fish/completions/'.format(os.path.expanduser('~')),
     ],
+    'fish_default': '{0}/.config/fish/completions'.format(
+        os.path.expanduser('~')
+    ),
     'zsh': [
         '/usr/local/share/zsh-completions/',
     ],
+    'zsh_default': '{0}/.zsh/completions/'.format(os.path.expanduser('~')),
     'powershell': [
         '{0}/.config/powershell/'.format(os.path.expanduser('~')),
     ],
@@ -91,16 +96,33 @@ class BaseShell(object):
                 return location
 
         logger.debug("Shell not found")
-        user_path = str(
-            input(
-                'Path to shell completions directory not found. '
-                'Please enter own path to {0} completions:\n'.format(
-                    self.shell_name
-                )
-            )
+
+        stmt = '{0} completions directory not found.\nS(kip)\n'.format(
+            self.shell_name
         )
+        if '{0}_default'.format(self.shell_name) in PATH_FOR_SHELL:
+            stmt += 'd(efault) - path {0}\n'.format(
+                PATH_FOR_SHELL['{0}_default'.format(self.shell_name)]
+            )
+
+        stmt += 'p(rovide) - insert custom path\n'
+
+        user_path = str(input(stmt))
 
         if user_path:
+            if user_path in 'dD':
+                try:
+                    user_path = PATH_FOR_SHELL[
+                        '{0}_default'.format(self.shell_name)
+                    ]
+                    if not os.path.exists(user_path):
+                        os.mkdir(user_path)
+                except KeyError:
+                    logger.debug('Not a{0}_default'.format(self.shell_name))
+
+            if user_path in 'pP':
+                user_path = str(input())
+
             logger.debug("Append path " + user_path)
             PATH_FOR_SHELL[self.shell_name].append(user_path)
 
@@ -167,6 +189,22 @@ class Bash(BashZshInstallCommandsMixin, BaseShell):
         logger.debug("Write completer content" + self.install_file_path)
         with open(str(self.install_file_path), 'w') as f:
             f.write(completer_content)
+
+        logger.debug("Write completer path to ~/.bash_profile")
+
+        command = 'printf "\n. {0}" >> ~/.bash_profile'.format(
+            self.install_file_path
+        )
+
+        try:
+            with open(os.path.expanduser('~/.bash_profile'), 'r') as f:
+                content = f.read()
+        except IOError:
+            content = ''
+
+        if not content:
+            subprocess.check_output(command, shell=True)
+
         logger.debug("Install bash end")
 
     def install(self, commands):
@@ -213,14 +251,19 @@ class Zsh(BashZshInstallCommandsMixin, BaseShell):
         logger.debug(
             "Add completer path to startup script " + self.install_file_path
         )
-        command = 'echo ". {0}" >> ~/.zshrc'.format(
+
+        command = 'printf "\n. {0}" >> ~/.zshrc'.format(
             self.install_path + 'completer'
         )
-        if os.path.isfile(os.path.expanduser('~/.zshrc')):
-            index = command.find('"') + 1
-            command = '{0} && {1}'.format(command[:index], command[index:])
 
-        subprocess.check_output(command, shell=True)
+        try:
+            with open(os.path.expanduser('~/.zshrc'), 'r') as f:
+                content = f.read()
+        except IOError:
+            content = ''
+
+        if not content:
+            subprocess.check_output(command, shell=True).decode('utf-8')
 
         logger.debug("Zsh install end")
 

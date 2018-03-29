@@ -67,12 +67,13 @@ SHELL_LIST = [
 ]
 
 
-@patch('sufler.cli.os.path.exists', return_value=True)
+@patch('sufler.cli.input', return_value='d')
+@patch('sufler.cli.os.path.exists', side_effect=[False, True])
 @pytest.mark.parametrize('shell_to_class, expected_values', SHELL_LIST)
-def test_base_shell_get_install_path(mock_exists, shell_to_class, expected_values):
+def test_base_shell_get_install_path(mock_exists, mock_input, shell_to_class, expected_values):
     shell = shell_to_class()
-    assert shell.get_install_path() == expected_values[0]
-    mock_exists.assert_called()
+    shell.get_install_path()
+    assert mock_exists.call_count in [1, 2]
 
 
 @patch('sufler.cli.BaseShell.get_install_path', return_value='something')
@@ -133,7 +134,7 @@ def test_bash_shell_initialize(mock_exists):
     with patch('sufler.cli.open', m):
         shell.initialize()
 
-    assert m.call_count == 2
+    assert m.call_count == 3
     mock_exists.assert_called()
 
 

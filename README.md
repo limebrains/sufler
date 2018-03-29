@@ -1,6 +1,6 @@
 # Sufler
  
-Sufler - is the tool to help you with generating bash/zsh/powershell/fish autocompletions from yml file. 
+Sufler - is the tool to help you with generating bash/zsh/powershell/fish autocompletions from YAML file. 
 
 [![Build Status](https://travis-ci.org/limebrains/sufler.svg?branch=master)](https://travis-ci.org/limebrains/sufler)
 [![coveralls](https://coveralls.io/repos/limebrains/sufler/badge.svg?branch=master&service=github)](https://coveralls.io/github/limebrains/sufler?branch=master)
@@ -9,14 +9,15 @@ Sufler - is the tool to help you with generating bash/zsh/powershell/fish autoco
 [Documentation](http://sufler.readthedocs.io/en/latest/?badge=latest)
  
 ## Quickstart:
-```
-sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
-```
-
-or
 
 ```bash
 pip install sufler
+```
+
+or 
+
+```
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
 ```
 
 you will have directory in your home dir where you can install your custom completions.
@@ -27,6 +28,9 @@ you will have directory in your home dir where you can install your custom compl
 │   └── pip.yml
 └── .config
 ```
+
+there is repo which accepts PR's with common completions 
+[sufler-completions - github.com](https://github.com/limebrains/sufler-completions)
 
 ## Key ideas:
 
@@ -42,6 +46,7 @@ you will have directory in your home dir where you can install your custom compl
         '--install-option':
           '<Exec> wget https://pypi.python.org/simple/ -O ~/.sufler/python_completions -c -q && cat ~/.sufler/python_completions | cut -d ">" -f 2 | cut -d "<" -f 1 | grep "^TREE~1.*"': *install
 ```
+[full raw file](https://raw.githubusercontent.com/limebrains/sufler-completions/master/completions/pip.yml)
 
 Please notice special names of keys such as:
 
@@ -53,10 +58,10 @@ Please notice special names of keys such as:
 
 - `<Run>`
 
-All of them are documented in details - [http://sufler.readthedocs.io/en/latest/user/advanced.html](documentation of advanced features)
+[All of them are documented in details - readthedocs.io](http://sufler.readthedocs.io/en/latest/user/advanced.html)
 
 ### Origin of the name
-Name comes from (pol. sufler - [https://pl.wikipedia.org/wiki/Sufler](sufler))  
+Name comes from (pol. sufler - [wiki](https://pl.wikipedia.org/wiki/Sufler))  
 > The prompter (sometimes prompt) in a theatre is a person who prompts or cues actors when they forget their lines or neglect to move on the stage to where they are supposed to be situated. 
  
 ![sufler](https://i.imgur.com/MWrtIhi.jpg)

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
+import os
 from distutils.command.install_scripts import install_scripts
 from distutils.core import setup
 
 from setuptools import find_packages
 
-import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 req_path = os.path.join(dir_path, 'requirements.txt')
 

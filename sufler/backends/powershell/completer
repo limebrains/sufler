@@ -4,7 +4,7 @@ if ((Test-Path Function:\TabExpansion) -and -not (Test-Path Function:\completerT
 
 
 function TabExpansion($line, $lastWord){{
-	$tasks = @(python "{python_script_path}" $line $lastWord)
+	$tasks = @({python_executable} "{python_script_path}" $line $lastWord)
 	$lastOption = $line.Split(' ')[-1]
 
     if($tasks -match "^$lastOption"){{

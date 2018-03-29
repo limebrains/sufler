@@ -8,6 +8,24 @@ Sufler - is the tool to help you with generating bash/zsh/powershell/fish autoco
 
 [Documentation](http://sufler.readthedocs.io/en/latest/?badge=latest)
  
+##Usage
+
+[![gif](https://i.imgur.com/u09q5be.gif)](http://sufler.readthedocs.io)
+
+```bash
+| => sufler --help
+Usage: sufler [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  init     initialize Sufler directory and config file
+  install  install completions
+  run      run command from <Run >
+
+```
+ 
 ## Quickstart:
 
 ```bash
@@ -17,7 +35,7 @@ pip install sufler
 or 
 
 ```
-sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/limebrains/sufler/master/install.bash)"
 ```
 
 you will have directory in your home dir where you can install your custom completions.
